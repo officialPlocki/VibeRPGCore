@@ -1,0 +1,5 @@
+name: AXECore
+version: '${project.version}'
+main: world.axe.axecore.AXECore
+api-version: 1.18
+load: STARTUP
