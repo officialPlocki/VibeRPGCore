@@ -10,13 +10,13 @@ public class DisplayHelper {
             DE("‡"),
             FR("➽");
 
-            private final String val;
+            public final String val;
 
             language(String val) {
                 this.val = val;
             }
 
-            String val() {
+            public String val() {
                 return this.val;
             }
         }
@@ -45,7 +45,7 @@ public class DisplayHelper {
             this.val = val;
         }
 
-        String val() {
+        public String val() {
             return this.val;
         }
     }
@@ -70,7 +70,7 @@ public class DisplayHelper {
             this.val = val;
         }
 
-        String val() {
+        public String val() {
             return this.val;
         }
     }
@@ -91,7 +91,7 @@ public class DisplayHelper {
             this.val = val;
         }
 
-        String val() {
+        public String val() {
             return this.val;
         }
     }
@@ -113,7 +113,7 @@ public class DisplayHelper {
             this.val = val;
         }
 
-        String val() {
+        public String val() {
             return this.val;
         }
     }
@@ -149,7 +149,7 @@ public class DisplayHelper {
             this.val = val;
         }
 
-        String val() {
+        public String val() {
             return this.val;
         }
     }
@@ -168,7 +168,7 @@ public class DisplayHelper {
             this.val = val;
         }
 
-        String val() {
+        public String val() {
             return this.val;
         }
 
@@ -188,7 +188,7 @@ public class DisplayHelper {
             this.val = val;
         }
 
-        String val() {
+        public String val() {
             return this.val;
         }
 
@@ -208,7 +208,7 @@ public class DisplayHelper {
             this.val = val;
         }
 
-        String val() {
+        public String val() {
             return this.val;
         }
 
@@ -228,7 +228,7 @@ public class DisplayHelper {
             this.val = val;
         }
 
-        String val() {
+        public String val() {
             return this.val;
         }
 
@@ -248,7 +248,7 @@ public class DisplayHelper {
             this.val = val;
         }
 
-        String val() {
+        public String val() {
             return this.val;
         }
 
@@ -268,7 +268,7 @@ public class DisplayHelper {
             this.val = val;
         }
 
-        String val() {
+        public String val() {
             return this.val;
         }
 
@@ -288,7 +288,7 @@ public class DisplayHelper {
             this.val = val;
         }
 
-        String val() {
+        public String val() {
             return this.val;
         }
 
@@ -308,7 +308,7 @@ public class DisplayHelper {
             this.val = val;
         }
 
-        String val() {
+        public String val() {
             return this.val;
         }
 
@@ -325,7 +325,7 @@ public class DisplayHelper {
             this.val = val;
         }
 
-        String val() {
+        public String val() {
             return this.val;
         }
 
@@ -385,7 +385,7 @@ public class DisplayHelper {
             this.val = val;
         }
 
-        String val() {
+        public String val() {
             return this.val;
         }
     }
@@ -439,7 +439,7 @@ public class DisplayHelper {
             this.val = val;
         }
 
-        String val() {
+        public String val() {
             return this.val;
         }
 
@@ -459,7 +459,7 @@ public class DisplayHelper {
             this.val = val;
         }
 
-        String val() {
+        public String val() {
             return this.val;
         }
     }
