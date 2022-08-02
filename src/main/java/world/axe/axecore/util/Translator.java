@@ -21,23 +21,23 @@ public class Translator {
 
     public Translator() {
         try(Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS translations(key TEXT, english TEXT, german TEXT, french TEXT);");
+            PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS translations(keyA TEXT, english TEXT, german TEXT, french TEXT);");
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void define(String german, String key) {
+    public void define(String german, String keyA) {
         try (Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("SELECT german FROM translations WHERE key = ?;");
-            statement.setString(1, key);
+            PreparedStatement statement = connection.prepareStatement("SELECT german FROM translations WHERE keyA = ?;");
+            statement.setString(1, keyA);
             ResultSet resultSet = statement.executeQuery();
             if (!resultSet.next()) {
                 String english = getTranslation(german, "en");
                 String french = getTranslation(german, "fr");
-                PreparedStatement insert = connection.prepareStatement("INSERT INTO translations(key,english,german,french) VALUES (?,?,?,?);");
-                insert.setString(1, key);
+                PreparedStatement insert = connection.prepareStatement("INSERT INTO translations(keyA,english,german,french) VALUES (?,?,?,?);");
+                insert.setString(1, keyA);
                 insert.setString(2, english);
                 insert.setString(3, german);
                 insert.setString(4, french);
@@ -48,7 +48,7 @@ public class Translator {
         }
     }
 
-    public String key(String key, AXEPlayer player, String... replacements) {
+    public String keyA(String keyA, AXEPlayer player, String... replacements) {
         try(Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
             String lang;
             if(player.getLanguage().equals(Languages.DE)) {
@@ -58,8 +58,8 @@ public class Translator {
             } else {
                 lang = "english";
             }
-            PreparedStatement statement = connection.prepareStatement("SELECT " + lang + " FROM translations WHERE key = ?;");
-            statement.setString(1, key);
+            PreparedStatement statement = connection.prepareStatement("SELECT " + lang + " FROM translations WHERE keyA = ?;");
+            statement.setString(1, keyA);
             ResultSet resultSet = statement.executeQuery();
             if(resultSet.next()) {
                 String str = resultSet.getString(lang);
@@ -70,7 +70,7 @@ public class Translator {
                 }
                 return str;
             } else {
-                return "The key or language string is not defined.";
+                return "The keyA or language string is not defined.";
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -90,7 +90,6 @@ public class Translator {
         object.put("source", "de");
         object.put("target", targetLanguage);
         object.put("format", "text");
-        object.put("api_key", "");
         writer.flush();
         writer.close();
         out.close();
