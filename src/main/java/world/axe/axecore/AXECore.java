@@ -3,6 +3,8 @@ package world.axe.axecore;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import world.axe.axecore.custom.ItemModifier;
+import world.axe.axecore.protocol.ProtocolHandler;
 import world.axe.axecore.util.FileProvider;
 import world.axe.axecore.util.MySQLDriver;
 import world.axe.axecore.util.Translator;
@@ -25,12 +27,15 @@ public final class AXECore extends JavaPlugin {
             yml.set("mysql.database", "database");
             yml.set("tp.url", "https://localhost/pack.zip");
             config.save();
+            new ItemModifier();
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
         driver = new MySQLDriver();
         new Translator();
+        new ProtocolHandler(this).init();
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+
     }
 
     @Override
