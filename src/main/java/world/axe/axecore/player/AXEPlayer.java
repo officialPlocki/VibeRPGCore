@@ -28,7 +28,7 @@ public class AXEPlayer {
         this.player = player;
         online = true;
         try (Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS axePlayer(TEXT language, TEXT firstJoin, TEXT lastJoin, TEXT joins, TEXT lastIP, TEXT ips, TEXT uuid);");
+            PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS axePlayer(language TEXT, firstJoin TEXT, uuid TEXT);");
             statement.executeUpdate();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -38,14 +38,12 @@ public class AXEPlayer {
             statement.setString(1, player.getUniqueId().toString());
             ResultSet resultSet = statement.executeQuery();
             if (!resultSet.next()) {
-                PreparedStatement insert = connection.prepareStatement("INSERT INTO axePlayer(language,firstJoin,lastJoin,joins,lastIP,ips,uuid) VALUES (?,?,?,?,?,?,?,?);");
+                PreparedStatement insert = connection.prepareStatement("INSERT INTO axePlayer(language,firstJoin,uuid) VALUES (?,?,?);");
                 insert.setString(1, Languages.EN.name());
                 insert.setString(2, "" + System.currentTimeMillis());
-                insert.setString(3, "" + System.currentTimeMillis());
-                insert.setString(4, String.join(", ", Lists.newArrayList(System.currentTimeMillis() + "")));
-                insert.setString(5, Objects.requireNonNull(player.getAddress()).getHostName());
-                insert.setString(6, String.join(", ", Lists.newArrayList(player.getAddress().getHostName())));
-                insert.setString(7, player.getUniqueId().toString());
+                insert.setString(3, player.getUniqueId().toString());
+                insert.executeUpdate();
+                new MoneyAPI(this, Money.GEMS);
                 insert.executeUpdate();
                 new MoneyAPI(this, Money.GEMS);
             }
@@ -58,7 +56,7 @@ public class AXEPlayer {
         this.player = player;
         online = false;
         try (Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS axePlayer(TEXT language, TEXT firstJoin, TEXT lastJoin, TEXT joins, TEXT lastIP, TEXT ips, TEXT uuid);");
+            PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS axePlayer(language TEXT, firstJoin TEXT, uuid TEXT);");
             statement.executeUpdate();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -68,14 +66,10 @@ public class AXEPlayer {
             statement.setString(1, player.getUniqueId().toString());
             ResultSet resultSet = statement.executeQuery();
             if (!resultSet.next()) {
-                PreparedStatement insert = connection.prepareStatement("INSERT INTO axePlayer(language,firstJoin,lastJoin,joins,lastIP,ips,uuid) VALUES (?,?,?,?,?,?,?,?);");
+                PreparedStatement insert = connection.prepareStatement("INSERT INTO axePlayer(language,firstJoin,uuid) VALUES (?,?,?);");
                 insert.setString(1, Languages.EN.name());
                 insert.setString(2, "" + System.currentTimeMillis());
-                insert.setString(3, "" + System.currentTimeMillis());
-                insert.setString(4, String.join(",", Lists.newArrayList(System.currentTimeMillis() + "")));
-                insert.setString(5, "not joined yet " + UUID.randomUUID());
-                insert.setString(6, String.join(",", new ArrayList<String>()));
-                insert.setString(7, player.getUniqueId().toString());
+                insert.setString(3, player.getUniqueId().toString());
                 insert.executeUpdate();
                 new MoneyAPI(this, Money.GEMS);
             }
@@ -89,7 +83,7 @@ public class AXEPlayer {
             player = Bukkit.getPlayer(uuid);
             online = true;
             try (Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
-                PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS axePlayer(TEXT language, TEXT firstJoin, TEXT lastJoin, TEXT joins, TEXT lastIP, TEXT ips, TEXT uuid);");
+                PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS axePlayer(language TEXT, firstJoin TEXT, uuid TEXT);");
                 statement.executeUpdate();
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -99,14 +93,10 @@ public class AXEPlayer {
                 statement.setString(1, uuid);
                 ResultSet resultSet = statement.executeQuery();
                 if (!resultSet.next()) {
-                    PreparedStatement insert = connection.prepareStatement("INSERT INTO axePlayer(language,firstJoin,lastJoin,joins,lastIP,ips,uuid) VALUES (?,?,?,?,?,?,?,?);");
+                    PreparedStatement insert = connection.prepareStatement("INSERT INTO axePlayer(language,firstJoin,uuid) VALUES (?,?,?);");
                     insert.setString(1, Languages.EN.name());
                     insert.setString(2, "" + System.currentTimeMillis());
-                    insert.setString(3, "" + System.currentTimeMillis());
-                    insert.setString(4, String.join(", ", Lists.newArrayList(System.currentTimeMillis() + "")));
-                    insert.setString(5, Objects.requireNonNull(Objects.requireNonNull(Bukkit.getPlayer(UUID.fromString(uuid))).getAddress()).getHostName());
-                    insert.setString(6, String.join(", ", Lists.newArrayList(Objects.requireNonNull(Objects.requireNonNull(Objects.requireNonNull(Bukkit.getPlayer(UUID.fromString(uuid))).getAddress()).getHostName()))));
-                    insert.setString(7, uuid);
+                    insert.setString(3, uuid);
                     insert.executeUpdate();
                     new MoneyAPI(this, Money.GEMS);
                 }
@@ -117,7 +107,7 @@ public class AXEPlayer {
             player = Bukkit.getOfflinePlayer(UUID.fromString(uuid));
             online = false;
             try (Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
-                PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS axePlayer(TEXT language, TEXT firstJoin, TEXT uuid);");
+                PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS axePlayer(language TEXT, firstJoin TEXT, uuid TEXT);");
                 statement.executeUpdate();
             } catch (Exception ex) {
                 ex.printStackTrace();

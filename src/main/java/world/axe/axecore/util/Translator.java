@@ -21,7 +21,7 @@ public class Translator {
 
     public Translator() {
         try(Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS translations(TEXT key, TEXT english, TEXT german, TEXT french);");
+            PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS translations(key TEXT, english TEXT, german TEXT, french TEXT);");
             statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
