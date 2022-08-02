@@ -48,7 +48,7 @@ public class Translator {
         }
     }
 
-    public String keyA(String keyA, AXEPlayer player, String... replacements) {
+    public String key(String keyA, AXEPlayer player, String... replacements) {
         try(Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
             String lang;
             if(player.getLanguage().equals(Languages.DE)) {
