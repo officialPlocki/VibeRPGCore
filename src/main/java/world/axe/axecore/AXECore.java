@@ -3,6 +3,7 @@ package world.axe.axecore;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import world.axe.axecore.command.SetupCommand;
 import world.axe.axecore.custom.ItemModifier;
 import world.axe.axecore.protocol.ProtocolHandler;
 import world.axe.axecore.util.FileProvider;
@@ -35,7 +36,7 @@ public final class AXECore extends JavaPlugin {
         new Translator();
         new ProtocolHandler(this).init();
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
-
+        getCommand("setup").setExecutor(new SetupCommand());
     }
 
     @Override

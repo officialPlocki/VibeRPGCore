@@ -23,33 +23,6 @@ public class DisplayHelper {
 
     }
 
-    public enum titles {
-
-        AUCTION("╔"),
-        AUCTIONS("╩"),
-        COSMETICS("╦"),
-        DISCORD("╠"),
-        HELP("═"),
-        INFORMATION("╬"),
-        JOBS("¦"),
-        KITS("ı"),
-        SHOP("∟"),
-        STORE("Ξ"),
-        TAGS("T"),
-        VOTE("∩"),
-        WARPS("L");
-
-        private final String val;
-
-        titles(String val) {
-            this.val = val;
-        }
-
-        public String val() {
-            return this.val;
-        }
-    }
-
     public enum special {
 
         ANCIENT("╗"),
@@ -336,7 +309,8 @@ public class DisplayHelper {
         ADMIN_TAG("ⓑ"),
         ANCIENT_TAG("ⓒ"),
         BAMBOO_TAG("ⓓ"),
-        BARROON_TAG("ⓔ"),
+        BARON_TAG("ⓔ"),
+        CHAMPION_TAG("ÿ"),
         BOOSTER_TAG("ⓕ"),
         CAESAR_TAG("ⓖ"),
         DEVELOPER_TAG("ⓗ"),
@@ -348,6 +322,7 @@ public class DisplayHelper {
         EVENT_GUIDE("ⓝ"),
         EXTREME_TAG("ⓞ"),
         GOD_TAG("ⓟ"),
+        BUILDER_TAG("☼"),
         HEADADMIN_TAG("ⓠ"),
         HELPER_TAG("ⓡ"),
         HERO_TAG("ⓢ"),
