@@ -1,6 +1,5 @@
 package world.axe.axecore.player;
 
-import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -14,7 +13,6 @@ import java.io.DataOutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 

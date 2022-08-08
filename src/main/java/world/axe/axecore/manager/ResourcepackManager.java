@@ -3,11 +3,11 @@ package world.axe.axecore.manager;
 import net.kyori.adventure.text.Component;
 import world.axe.axecore.AXECore;
 import world.axe.axecore.player.AXEPlayer;
-import world.axe.axecore.util.Translator;
+import world.axe.axecore.util.TranslationUtil;
 
 import java.util.Objects;
 
-public class ResourcepackManager extends Translator {
+public class ResourcepackManager extends TranslationUtil {
 
     private final AXEPlayer player;
 

@@ -17,9 +17,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class Translator {
+public class TranslationUtil {
 
-    public Translator() {
+    // @todo chat message translation
+
+    public TranslationUtil() {
         try(Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
             PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS translations(keyA TEXT, english TEXT, german TEXT, french TEXT);");
             statement.executeUpdate();
@@ -90,6 +92,7 @@ public class Translator {
         object.put("source", "de");
         object.put("target", targetLanguage);
         object.put("format", "text");
+        writer.write(object.toString());
         writer.flush();
         writer.close();
         out.close();

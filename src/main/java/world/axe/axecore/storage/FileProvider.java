@@ -1,4 +1,4 @@
-package world.axe.axecore.util;
+package world.axe.axecore.storage;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 

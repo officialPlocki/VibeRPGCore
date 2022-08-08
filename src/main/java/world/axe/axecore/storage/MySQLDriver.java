@@ -1,4 +1,4 @@
-package world.axe.axecore.util;
+package world.axe.axecore.storage;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

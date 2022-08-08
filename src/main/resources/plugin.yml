@@ -2,7 +2,9 @@ name: AXECore
 version: '${project.version}'
 main: world.axe.axecore.AXECore
 api-version: 1.18
-load: STARTUP
+load: POSTWORLD
 author: Electronic AXE Development
-commands:
-  setup:
+  - ProtocolLib
+  - ItemsAdder
+  - MythicMobs
+  - ModelEngine

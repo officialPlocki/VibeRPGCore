@@ -1,81 +1,38 @@
 package world.axe.axecore.player;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.wrappers.*;
-import com.google.common.base.Predicates;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 import world.axe.axecore.display.DisplayHelper;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
 
 public class RankManager {
 
-    private final Player player;
+    private final Scoreboard scoreboard;
 
-    public RankManager(Player player) {
-        this.player = player;
+    public RankManager() {
+        this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
     }
 
-    public void sendTablist() {
-        PacketContainer container = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.PLAYER_LIST_HEADER_FOOTER);
-        container.getChatComponents().write(0, WrappedChatComponent.fromText("\n§8» §a§lE§b§lAXE §c§lRPG §8«\n\n"));
-        container.getChatComponents().write(1, WrappedChatComponent.fromText("\n\n§7Discord §8» §bdiscord.eaxe.world\n§7a §b§lElectronic AXE Entertainment project\n§8Make your own world.\n"));
-        try {
-            ProtocolLibrary.getProtocolManager().sendServerPacket(player, container);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
+    // @todo tablist sort
+
+    public void sendTablist(Player player) {
+        player.setScoreboard(scoreboard);
+        Team team;
+        if(scoreboard.getTeam(player.getName()) == null) {
+            team = scoreboard.registerNewTeam(player.getName());
+        } else {
+            team = scoreboard.getTeam(player.getName());
         }
-        WrappedGameProfile profile = WrappedGameProfile.fromPlayer(player);
-        WrappedChatComponent name = WrappedChatComponent.fromText(player.getPlayerListName());
-        WrappedDataWatcher watcher = WrappedDataWatcher.getEntityWatcher(player);
-        WrappedSignedProperty signed = new PlayerInfoData(profile, 0, EnumWrappers.NativeGameMode.fromBukkit(player.getGameMode()), name).getProfile().getProperties().get("textures").iterator().next();
-
-        PacketContainer add = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.PLAYER_INFO);
-        PacketContainer remove = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.PLAYER_INFO);
-
-        PacketContainer destroy = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.ENTITY_DESTROY);
-        PacketContainer spawn = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.NAMED_ENTITY_SPAWN);
-
-        remove.getPlayerInfoAction().write(0, EnumWrappers.PlayerInfoAction.REMOVE_PLAYER);
-        remove.getPlayerInfoDataLists().write(0, Collections.singletonList(new PlayerInfoData(WrappedGameProfile.fromPlayer(player), 0, EnumWrappers.NativeGameMode.fromBukkit(player.getGameMode()), WrappedChatComponent.fromText(player.getDisplayName()))));
-
-        add.getPlayerInfoAction().write(0, EnumWrappers.PlayerInfoAction.ADD_PLAYER);
-
-        PlayerInfoData data = new PlayerInfoData(profile.withName(getPrefix() + " §7" + player.getName() + " " + getSuffix()), 0, EnumWrappers.NativeGameMode.fromBukkit(player.getGameMode()), WrappedChatComponent.fromText(""));
-        data.getProfile().getProperties().clear();
-        data.getProfile().getProperties().get("textures").add(signed);
-
-        add.getPlayerInfoDataLists().write(0, Collections.singletonList(data));
-
-        destroy.getIntegerArrays().write(0, new int[]{player.getEntityId()});
-
-        spawn.getIntegers().write(0, player.getEntityId());
-        spawn.getUUIDs().write(0, player.getUniqueId());
-        spawn.getDoubles().write(0, player.getLocation().getX());
-        spawn.getDoubles().write(1, player.getLocation().getY());
-        spawn.getDoubles().write(2, player.getLocation().getZ());
-        spawn.getBytes().write(0, (byte)((int)(player.getLocation().getYaw() * 256.0F / 360.0F)));
-        spawn.getBytes().write(1, (byte)((int)(player.getLocation().getPitch() * 256.0F / 360.0F)));
-        spawn.getDataWatcherModifier().write(0, watcher);
-
-        ProtocolLibrary.getProtocolManager().broadcastServerPacket(remove);
-        ProtocolLibrary.getProtocolManager().broadcastServerPacket(add);
-
-        Bukkit.getOnlinePlayers().stream().filter(Predicates.not(player::equals)).forEach(object -> {
-            try {
-                ProtocolLibrary.getProtocolManager().sendServerPacket(object, destroy);
-                ProtocolLibrary.getProtocolManager().sendServerPacket(object, spawn);
-            } catch (InvocationTargetException exception) {
-                exception.printStackTrace();
-            }
-        });
+        assert team != null;
+        team.setPrefix(getPrefix(player));
+        team.setSuffix(getSuffix(player));
+        team.setColor(ChatColor.GRAY);
+        team.addPlayer(player);
     }
 
-    public String getSuffix() {
+    public String getSuffix(Player player) {
         String suffix = "§f";
         if(player.hasPermission("suffix.event_guide")) {
             suffix = suffix + DisplayHelper.ranks.EVENT_GUIDE.val();
@@ -116,7 +73,7 @@ public class RankManager {
         return suffix;
     }
 
-    public String getPrefix() {
+    public String getPrefix(Player player) {
         if(player.hasPermission("rank.headadmin")) {
             return "§f" + DisplayHelper.ranks.HEADADMIN_TAG.val();
         } else if(player.hasPermission("rank.admin")) {

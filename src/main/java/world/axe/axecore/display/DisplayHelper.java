@@ -2,6 +2,8 @@ package world.axe.axecore.display;
 
 public class DisplayHelper {
 
+    // @todo implement gems update MCM icon
+
     public static class inventories {
 
         public enum language {

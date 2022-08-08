@@ -6,21 +6,22 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import world.axe.axecore.display.DisplayHelper;
 import world.axe.axecore.player.AXEPlayer;
-import world.axe.axecore.util.FileProvider;
-import world.axe.axecore.util.Translator;
+import world.axe.axecore.storage.FileProvider;
+import world.axe.axecore.util.TranslationUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class ItemModifier extends Translator {
+public class ItemModifier extends TranslationUtil {
 
-    private final FileProvider provider;
+    // @todo add item creation
+
     private final YamlConfiguration yml;
 
     public ItemModifier() {
-        this.provider = new FileProvider("items.yml");
+        FileProvider provider = new FileProvider("items.yml");
         this.yml = provider.getConfiguration();
         List<String> tags = new ArrayList<>();
         for(DisplayHelper.special special : DisplayHelper.special.values()) {

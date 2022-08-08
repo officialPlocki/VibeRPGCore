@@ -7,15 +7,15 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
-import com.google.common.collect.Lists;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import world.axe.axecore.custom.ItemModifier;
 import world.axe.axecore.player.AXEPlayer;
 
 public class ProtocolHandler {
+
+    // @todo add selection system over clickable armorstands
 
     private final Plugin plugin;
 
