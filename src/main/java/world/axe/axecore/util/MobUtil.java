@@ -1,4 +1,4 @@
-package world.axe.axecore.manager;
+package world.axe.axecore.util;
 
 import io.lumine.mythic.api.exceptions.InvalidMobTypeException;
 import io.lumine.mythic.api.mobs.MythicMob;
@@ -11,7 +11,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 
 import java.util.UUID;
 
-public class MobManager {
+public class MobUtil {
 
     public Entity spawnMob(EntityType type, Location location) {
         return location.getWorld().spawnEntity(location, type, CreatureSpawnEvent.SpawnReason.CUSTOM);

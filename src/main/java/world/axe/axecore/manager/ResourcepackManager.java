@@ -18,10 +18,12 @@ public class ResourcepackManager extends TranslationUtil {
 
     public void send() {
         if(player.isOnline()) {
-            player.getBukkitPlayer().setResourcePack(Objects.requireNonNull(AXECore.getConfigurationProvider().getConfiguration().getString("tp.url")),
-                    Objects.requireNonNull(AXECore.getConfigurationProvider().getConfiguration().getString("tp.sha-1")),
-                    true,
-                    Component.text(key("tp.needed.prompt", player)));
+            if(!player.getBukkitPlayer().hasResourcePack()) {
+                player.getBukkitPlayer().setResourcePack(Objects.requireNonNull(AXECore.getConfigurationProvider().getConfiguration().getString("tp.url")),
+                        Objects.requireNonNull(AXECore.getConfigurationProvider().getConfiguration().getString("tp.sha-1")),
+                        true,
+                        Component.text(key("tp.needed.prompt", player)));
+            }
         }
     }
 

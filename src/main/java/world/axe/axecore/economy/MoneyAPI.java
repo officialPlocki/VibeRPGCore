@@ -9,6 +9,8 @@ import java.sql.ResultSet;
 
 public class MoneyAPI {
 
+    // @todo integrate events
+
     private final Money save;
     private final AXEPlayer player;
 

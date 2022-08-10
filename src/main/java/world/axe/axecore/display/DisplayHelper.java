@@ -21,6 +21,7 @@ public class DisplayHelper {
             public String val() {
                 return this.val;
             }
+
         }
 
     }

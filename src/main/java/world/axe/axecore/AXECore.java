@@ -9,6 +9,7 @@ import world.axe.axecore.player.RankManager;
 import world.axe.axecore.protocol.ProtocolHandler;
 import world.axe.axecore.storage.FileProvider;
 import world.axe.axecore.storage.MySQLDriver;
+import world.axe.axecore.util.AudioUtil;
 import world.axe.axecore.util.TranslationUtil;
 
 public final class AXECore extends JavaPlugin {
@@ -36,6 +37,7 @@ public final class AXECore extends JavaPlugin {
             return;
         }
         driver = new MySQLDriver();
+        new AudioUtil();
         new TranslationUtil();
         new ProtocolHandler(this).init();
         ranks = new RankManager();
