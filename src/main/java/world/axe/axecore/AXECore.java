@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import world.axe.axecore.custom.ItemModifier;
+import world.axe.axecore.listener.AudioListener;
 import world.axe.axecore.listener.PlayerListener;
 import world.axe.axecore.player.RankManager;
 import world.axe.axecore.protocol.ProtocolHandler;
@@ -12,11 +13,15 @@ import world.axe.axecore.storage.MySQLDriver;
 import world.axe.axecore.util.AudioUtil;
 import world.axe.axecore.util.TranslationUtil;
 
+import java.util.UUID;
+
 public final class AXECore extends JavaPlugin {
 
     private static MySQLDriver driver;
     private static FileProvider config;
     private static RankManager ranks;
+
+    private static AudioUtil audio;
 
     @Override
     public void onEnable() {
@@ -37,18 +42,23 @@ public final class AXECore extends JavaPlugin {
             return;
         }
         driver = new MySQLDriver();
-        new AudioUtil();
         new TranslationUtil();
         new ProtocolHandler(this).init();
         ranks = new RankManager();
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
         Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        audio = new AudioUtil(this);
+        Bukkit.getPluginManager().registerEvents(new AudioListener(), this);
     }
 
     @Override
     public void onDisable() {
         // Plugin shutdown logic
         getDriver().close();
+    }
+
+    public static AudioUtil getAudio() {
+        return audio;
     }
 
     public static RankManager getRanks() {

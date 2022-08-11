@@ -1,5 +1,6 @@
 package world.axe.axecore.storage.mysql.function;
 
+import org.bukkit.Bukkit;
 import world.axe.axecore.AXECore;
 import world.axe.axecore.storage.mysql.MySQLTask;
 
@@ -11,10 +12,8 @@ public class MySQLInsert {
 
     private Connection connection;
     private String statement;
-    private HashMap<String, String> requirements;
 
     public MySQLInsert() {
-        requirements = new HashMap<>();
         try {
             connection = AXECore.getDriver().getDataSource().getConnection();
         } catch (Exception exception) {
@@ -30,32 +29,24 @@ public class MySQLInsert {
     public void prepare(MySQLTable.fin information, Object... values) {
        MySQLRequest request = new MySQLTask().ask().prepare(information.getValues()[0], information.getTableName());
        if(request.execute().isEmpty()) {
-           statement = "INSERT INTO " + information.getTableName() + "(";
+           statement = "INSERT INTO " + information.getTableName() + "( ";
+           final int[] i = {0};
            for(String value : information.getValues()) {
-               if(requirements.size() > 1) {
-                   final int[] i = {0};
-                   requirements.forEach((s, s2) -> {
-                       i[0] = i[0] + 1;
-                       if(!(i[0] == requirements.size())) {
-                           statement = statement + value + ", ";
-                       } else {
-                           statement = statement + value + ") VALUES (";
-                       }
-                   });
+               if(!(i[0] == (values.length - 1))) {
+                   statement = statement + value + ", ";
+               } else {
+                   statement = statement + value + ") VALUES (";
                }
+               i[0] = i[0] + 1;
            }
+           i[0] = 0;
            for(Object value : values) {
-               if(requirements.size() > 1) {
-                   final int[] i = {0};
-                   requirements.forEach((s, s2) -> {
-                       i[0] = i[0] + 1;
-                       if(!(i[0] == requirements.size())) {
-                           statement = statement + "`" + value + "`" + ", ";
-                       } else {
-                           statement = statement + "`" + value + "`" + ");";
-                       }
-                   });
+               if(!(i[0] == (values.length - 1))) {
+                   statement = statement + " '" + value + "' " + ", ";
+               } else {
+                   statement = statement + " '" + value + "' " + ");";
                }
+               i[0] = i[0] + 1;
            }
        }
     }
@@ -65,8 +56,9 @@ public class MySQLInsert {
      */
     public void execute() {
         try {
-            connection.prepareStatement(statement).executeUpdate();
+            connection.prepareStatement(statement).executeLargeUpdate();
         } catch (SQLException e) {
+            Bukkit.getConsoleSender().sendMessage(statement);
             throw new RuntimeException(e);
         }
     }

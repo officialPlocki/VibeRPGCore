@@ -4,7 +4,14 @@ main: world.axe.axecore.AXECore
 api-version: 1.18
 load: POSTWORLD
 author: Electronic AXE Development
+depend:
   - ProtocolLib
-  - ItemsAdder
   - MythicMobs
   - ModelEngine
+  - OpenAudioMc
+loadbefore:
+  - ProtocolLib
+  - MythicMobs
+  - ModelEngine
+  - OpenAudioMc
+commands:

@@ -1,5 +1,6 @@
 package world.axe.axecore.storage.mysql.function;
 
+import org.bukkit.Bukkit;
 import world.axe.axecore.AXECore;
 
 import java.sql.*;
@@ -54,8 +55,7 @@ public class MySQLRequest {
             if(requirements.size() > 1) {
                 final int[] i = {0};
                 requirements.forEach((s, s2) -> {
-                    i[0] = i[0] + 1;
-                    if(!(i[0] == requirements.size())) {
+                    if(!(i[0] == (requirements.size() - 1))) {
                         if(i[0] == 0) {
                             statement = statement + " WHERE ";
                         }
@@ -66,6 +66,7 @@ public class MySQLRequest {
                         }
                         statement = statement + s + " = '" + s2 + "';";
                     }
+                    i[0] = i[0] + 1;
                 });
             }
         }
@@ -81,6 +82,7 @@ public class MySQLRequest {
             }
             return new MySQLResponse(values);
         } catch (Exception ex) {
+            Bukkit.getConsoleSender().sendMessage(statement);
             ex.printStackTrace();
         }
         return new MySQLResponse(null);

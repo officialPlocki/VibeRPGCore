@@ -1,21 +1,19 @@
 package world.axe.axecore.storage.mysql.function;
 
+import org.bukkit.Bukkit;
 import world.axe.axecore.AXECore;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
 
 public class MySQLTable {
 
     private Connection connection;
     private String statement;
-    private HashMap<String, String> requirements;
     private String tableName;
     private String[] values;
 
     public MySQLTable() {
-        requirements = new HashMap<>();
         try {
             connection = AXECore.getDriver().getDataSource().getConnection();
         } catch (Exception exception) {
@@ -31,18 +29,14 @@ public class MySQLTable {
      */
     public MySQLTable prepare(String tableName, String... values) {
         statement = "CREATE TABLE IF NOT EXISTS " + tableName + "(";
+        final int[] i = {0};
         for(String value : values) {
-            if(requirements.size() > 1) {
-                final int[] i = {0};
-                requirements.forEach((s, s2) -> {
-                    i[0] = i[0] + 1;
-                    if(!(i[0] == requirements.size())) {
-                        statement = statement + value + " TEXT, ";
-                    } else {
-                        statement = statement + value + " TEXT);";
-                    }
-                });
+            if(!(i[0] == (values.length - 1))) {
+                statement = statement + value + " TEXT, ";
+            } else {
+                statement = statement + value + " TEXT);";
             }
+            i[0] = i[0] + 1;
         }
         this.values = values;
         this.tableName = tableName;
@@ -58,6 +52,7 @@ public class MySQLTable {
         try {
             connection.prepareStatement(statement).executeUpdate();
         } catch (SQLException e) {
+            Bukkit.getConsoleSender().sendMessage(statement);
             throw new RuntimeException(e);
         }
         return new fin() {
