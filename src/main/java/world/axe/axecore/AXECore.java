@@ -17,6 +17,8 @@ import java.util.UUID;
 
 public final class AXECore extends JavaPlugin {
 
+    // @todo vault money integration
+
     private static MySQLDriver driver;
     private static FileProvider config;
     private static RankManager ranks;

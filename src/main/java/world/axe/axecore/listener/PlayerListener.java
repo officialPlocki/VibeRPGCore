@@ -1,13 +1,17 @@
 package world.axe.axecore.listener;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 import world.axe.axecore.AXECore;
 import world.axe.axecore.player.AXEPlayer;
 import world.axe.axecore.player.RankManager;
+
+import java.util.Objects;
 
 public class PlayerListener implements Listener {
 
@@ -21,6 +25,9 @@ public class PlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoin(PlayerJoinEvent event) {
+        if(!Objects.requireNonNull(event.getPlayer().getClientBrandName()).toLowerCase().contains("labymod") || !event.getPlayer().getClientBrandName().toLowerCase().contains("lunarclient")) {
+            event.getPlayer().kick(Component.text("§cElectronic AXE does currently only support LabyMod because of many deep implementations.\n\n§bGet LabyMod here: §7https://labymod.net"), PlayerKickEvent.Cause.PLUGIN);
+        }
         new AXEPlayer(event.getPlayer()).sendResourcePack();
         AXECore.getRanks().sendTablist(event.getPlayer());
     }
