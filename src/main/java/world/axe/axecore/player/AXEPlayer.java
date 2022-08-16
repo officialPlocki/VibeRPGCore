@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import world.axe.axecore.AXECore;
 import world.axe.axecore.economy.Money;
 import world.axe.axecore.economy.MoneyAPI;
+import world.axe.axecore.manager.ProfileManager;
 import world.axe.axecore.manager.ResourcepackManager;
 
 import java.io.ByteArrayOutputStream;
@@ -26,7 +27,7 @@ public class AXEPlayer {
         this.player = player;
         online = true;
         try (Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS axePlayer(language TEXT, firstJoin TEXT, uuid TEXT);");
+            PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS axePlayer(language TEXT, language_set BOOL, firstJoin TEXT, uuid TEXT);");
             statement.executeUpdate();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -36,10 +37,11 @@ public class AXEPlayer {
             statement.setString(1, player.getUniqueId().toString());
             ResultSet resultSet = statement.executeQuery();
             if (!resultSet.next()) {
-                PreparedStatement insert = connection.prepareStatement("INSERT INTO axePlayer(language,firstJoin,uuid) VALUES (?,?,?);");
+                PreparedStatement insert = connection.prepareStatement("INSERT INTO axePlayer(language,language_set,firstJoin,uuid) VALUES (?,?,?,?);");
                 insert.setString(1, Languages.EN.name());
-                insert.setString(2, "" + System.currentTimeMillis());
-                insert.setString(3, player.getUniqueId().toString());
+                insert.setBoolean(2, false);
+                insert.setString(3, "" + System.currentTimeMillis());
+                insert.setString(4, player.getUniqueId().toString());
                 insert.executeUpdate();
                 new MoneyAPI(this, Money.GEMS);
                 insert.executeUpdate();
@@ -54,7 +56,7 @@ public class AXEPlayer {
         this.player = player;
         online = false;
         try (Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
-            PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS axePlayer(language TEXT, firstJoin TEXT, uuid TEXT);");
+            PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS axePlayer(language TEXT, language_set BOOL, firstJoin TEXT, uuid TEXT);");
             statement.executeUpdate();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -64,10 +66,11 @@ public class AXEPlayer {
             statement.setString(1, player.getUniqueId().toString());
             ResultSet resultSet = statement.executeQuery();
             if (!resultSet.next()) {
-                PreparedStatement insert = connection.prepareStatement("INSERT INTO axePlayer(language,firstJoin,uuid) VALUES (?,?,?);");
+                PreparedStatement insert = connection.prepareStatement("INSERT INTO axePlayer(language,language_set,firstJoin,uuid) VALUES (?,?,?,?);");
                 insert.setString(1, Languages.EN.name());
-                insert.setString(2, "" + System.currentTimeMillis());
-                insert.setString(3, player.getUniqueId().toString());
+                insert.setBoolean(2, false);
+                insert.setString(3, "" + System.currentTimeMillis());
+                insert.setString(4, player.getUniqueId().toString());
                 insert.executeUpdate();
                 new MoneyAPI(this, Money.GEMS);
             }
@@ -81,7 +84,7 @@ public class AXEPlayer {
             player = Bukkit.getPlayer(uuid);
             online = true;
             try (Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
-                PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS axePlayer(language TEXT, firstJoin TEXT, uuid TEXT);");
+                PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS axePlayer(language TEXT, language_set BOOL, firstJoin TEXT, uuid TEXT);");
                 statement.executeUpdate();
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -91,10 +94,11 @@ public class AXEPlayer {
                 statement.setString(1, uuid);
                 ResultSet resultSet = statement.executeQuery();
                 if (!resultSet.next()) {
-                    PreparedStatement insert = connection.prepareStatement("INSERT INTO axePlayer(language,firstJoin,uuid) VALUES (?,?,?);");
+                    PreparedStatement insert = connection.prepareStatement("INSERT INTO axePlayer(language,language_set,firstJoin,uuid) VALUES (?,?,?,?);");
                     insert.setString(1, Languages.EN.name());
-                    insert.setString(2, "" + System.currentTimeMillis());
-                    insert.setString(3, uuid);
+                    insert.setBoolean(2, false);
+                    insert.setString(3, "" + System.currentTimeMillis());
+                    insert.setString(4, uuid);
                     insert.executeUpdate();
                     new MoneyAPI(this, Money.GEMS);
                 }
@@ -105,7 +109,7 @@ public class AXEPlayer {
             player = Bukkit.getOfflinePlayer(UUID.fromString(uuid));
             online = false;
             try (Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
-                PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS axePlayer(language TEXT, firstJoin TEXT, uuid TEXT);");
+                PreparedStatement statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS axePlayer(language TEXT, language_set BOOL, firstJoin TEXT, uuid TEXT);");
                 statement.executeUpdate();
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -115,10 +119,11 @@ public class AXEPlayer {
                 statement.setString(1, uuid);
                 ResultSet resultSet = statement.executeQuery();
                 if (!resultSet.next()) {
-                    PreparedStatement insert = connection.prepareStatement("INSERT INTO axePlayer(language,firstJoin,uuid) VALUES (?,?,?);");
+                    PreparedStatement insert = connection.prepareStatement("INSERT INTO axePlayer(language,language_set,firstJoin,uuid) VALUES (?,?,?,?);");
                     insert.setString(1, Languages.EN.name());
-                    insert.setString(2, "" + System.currentTimeMillis());
-                    insert.setString(3, uuid);
+                    insert.setBoolean(2, false);
+                    insert.setString(3, "" + System.currentTimeMillis());
+                    insert.setString(4, uuid);
                     insert.executeUpdate();
                     new MoneyAPI(this, Money.GEMS);
                 }
@@ -149,6 +154,39 @@ public class AXEPlayer {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    public Profile[] getProfiles() {
+        return new ProfileManager().getProfiles(getBukkitPlayer());
+    }
+
+    public int getProfileCount() {
+        return getProfiles().length;
+    }
+
+    public Profile createProfile() {
+        return new ProfileManager().createProfile(getBukkitPlayer());
+    }
+
+    public void setProfile(Profile profile) {
+        new ProfileManager().changeProfile(getBukkitPlayer(), profile);
+    }
+    public Profile getActiveProfile() {
+        return new ProfileManager().getActiveProfile(getBukkitPlayer());
+    }
+
+    public boolean languageIsSet() {
+        try (Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("SELECT language_set FROM axePlayer WHERE uuid = ?");
+            statement.setString(1, getUUID());
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                return resultSet.getBoolean("language_set");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return false;
     }
 
     public Languages getLanguage() {

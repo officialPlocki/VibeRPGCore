@@ -32,7 +32,7 @@ public class AudioUtil {
     private final YamlConfiguration yml;
     private final FileProvider provider;
 
-    public AudioUtil(Plugin plugin) {
+    public AudioUtil(Plugin plugin, boolean isBukkit) {
         provider = new FileProvider("sounds.yml");
         yml = provider.getConfiguration();
         if(!yml.isSet("setup")) {
@@ -50,20 +50,22 @@ public class AudioUtil {
             yml.set("worldguard.REGIONNAME.pack", Lists.newArrayList("soundName1", "soundName2"));
             provider.save();
         }
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> remaining.forEach((player, aDouble) -> {
-            remaining.put(player, aDouble-1.0);
-            if(remaining.get(player) <= 0.0) {
-                remaining.remove(player);
-            }
-        }), 20,20);
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> Bukkit.getOnlinePlayers().forEach((player) -> {
-            VoicePacks pack = VoicePacks.male_a;
-            if(pack.name().contains("male")) {
-                playSound(player, "voice_male_c_breath_loop_01_single_01", 5, false);
-            } else {
-                playSound(player, "voice_female_a_breath_quick_01", 5, false);
-            }
-        }), 20,355);
+        if(isBukkit) {
+            Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> remaining.forEach((player, aDouble) -> {
+                remaining.put(player, aDouble-1.0);
+                if(remaining.get(player) <= 0.0) {
+                    remaining.remove(player);
+                }
+            }), 20,20);
+            Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> Bukkit.getOnlinePlayers().forEach((player) -> {
+                VoicePacks pack = VoicePacks.male_a;
+                if(pack.name().contains("male")) {
+                    playSound(player, "voice_male_c_breath_loop_01_single_01", 5, false);
+                } else {
+                    playSound(player, "voice_female_a_breath_quick_01", 5, false);
+                }
+            }), 20,355);
+        }
     }
 
     public boolean isConnected(Player player) {
@@ -248,10 +250,63 @@ public class AudioUtil {
         return yml.getStringList("soundList");
     }
 
+    /**
+     * It plays a sound to a player
+     *
+     * @param player The player you want to play the sound for.
+     * @param soundName The name of the sound you want to play.
+     * @param volume The volume of the sound.
+     * @param music If the sound is a music sound, it will be played only for the player.
+     * @param ui If the sound is a UI sound, it will only play for the player.
+     */
+    public void playSound(Player player, String soundName, int volume, boolean music, boolean ui) {
+        if(!isConnected(player)) return;
+        if(!music) {
+            if(!ui) {
+                for(Player all : Bukkit.getOnlinePlayers()) {
+                    if(all.getLocation().distance(player.getLocation()) < 6) {
+                        Client client = AudioApi.getInstance().getClient(all.getUniqueId());
+                        String url = getSoundURL(soundName);
+                        MediaOptions options = new MediaOptions();
+                        options.setVolume(volume);
+                        AudioApi.getInstance().getMediaApi().playSpatialSound(client, url, player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ(), volume, true, 5);
+                    }
+                }
+            }
+        }
+        if(music) {
+            remaining.put(player, getSoundLength(soundName));
+        }
+        Client client = AudioApi.getInstance().getClient(player.getUniqueId());
+        String url = getSoundURL(soundName);
+        MediaOptions options = new MediaOptions();
+        options.setVolume(volume);
+        AudioApi.getInstance().getMediaApi().playMedia(client, url, options);
+    }
+
+    /**
+     * It plays a sound to a player
+     *
+     * @param player The player you want to play the sound to.
+     * @param soundName The name of the sound you want to play.
+     * @param volume 0-100
+     * @param music If the sound is music, it will be played for the player only. If it's not music, it will be played for
+     * all players within 6 blocks of the player.
+     */
     public void playSound(Player player, String soundName, int volume, boolean music) {
         if(!isConnected(player)) return;
         if(music) {
             remaining.put(player, getSoundLength(soundName));
+        } else {
+            for(Player all : Bukkit.getOnlinePlayers()) {
+                if(all.getLocation().distance(player.getLocation()) < 6) {
+                    Client client = AudioApi.getInstance().getClient(all.getUniqueId());
+                    String url = getSoundURL(soundName);
+                    MediaOptions options = new MediaOptions();
+                    options.setVolume(volume);
+                    AudioApi.getInstance().getMediaApi().playSpatialSound(client, url, player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ(), volume, true, 5);
+                }
+            }
         }
         Client client = AudioApi.getInstance().getClient(player.getUniqueId());
         String url = getSoundURL(soundName);

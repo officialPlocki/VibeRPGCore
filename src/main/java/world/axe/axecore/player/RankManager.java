@@ -15,8 +15,6 @@ public class RankManager {
         this.scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
     }
 
-    // @todo tablist sort
-
     public void sendTablist(Player player) {
         player.setScoreboard(scoreboard);
         Team team;
@@ -26,7 +24,6 @@ public class RankManager {
             team = scoreboard.getTeam(player.getName());
         }
         assert team != null;
-        team.setPrefix(getPrefix(player));
         team.setSuffix(getSuffix(player));
         team.setColor(ChatColor.GRAY);
         team.addPlayer(player);

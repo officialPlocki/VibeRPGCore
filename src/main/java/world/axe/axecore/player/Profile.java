@@ -2,6 +2,8 @@ package world.axe.axecore.player;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.bukkit.Location;
+import org.bukkit.inventory.ItemStack;
 import world.axe.axecore.custom.ProfileLocation;
 import world.axe.axecore.custom.SkillTeam;
 import world.axe.axecore.storage.mysql.MySQLTask;
@@ -26,9 +28,16 @@ public class Profile {
     private double health = 20;
     @JsonProperty("location")
     private ProfileLocation location;
-
     @JsonProperty("voicepack")
     private VoicePacks voicePack = VoicePacks.male_a;
+    @JsonProperty("voicepack_set")
+    private boolean voicepack_set = false;
+    @JsonProperty("extra")
+    private String[] extra;
+    @JsonProperty("hand")
+    private String hand;
+    @JsonProperty("offhand")
+    private String offhand;
     @JsonProperty("inventory")
     private String[] inventoryItems;
     @JsonProperty("armor")
@@ -41,6 +50,8 @@ public class Profile {
     private long created = System.currentTimeMillis();
     @JsonProperty("banned")
     private boolean banned = false;
+    @JsonProperty("soundSettings")
+    private String soundSettings = new SoundSettings(null).toString();
 
     @JsonCreator
     public Profile(@Nullable Profile profile) {
@@ -48,32 +59,73 @@ public class Profile {
         raw.prepare("playerProfiles",
                 "uuid",
                 "json");
-        MySQLTable.fin table = raw.build();
         if(profile == null) {
             MySQLInsert insert = new MySQLTask().insert();
-            insert.prepare(table,
+            insert.prepare(raw.build(),
                     uuid,
-                    new TransformUtil().toJson(this));
+                    "{}");
             insert.execute();
+            save();
         } else {
             uuid = profile.getUUID();
             originalUUID = profile.getOriginalUUID();
             hunger = profile.getHunger();
             health = profile.getHealth();
-            location = profile.getLocation();
-            inventoryItems = profile.getInventoryItems();
-            armor = profile.getArmor();
+            location = new TransformUtil().toProfileLocation(profile.getLocation());
+            inventoryItems = new TransformUtil().toProfileItems(profile.getInventoryItems());
+            armor = new TransformUtil().toProfileItems(profile.getArmor());
             exp = profile.getExp();
             ruby = profile.getRuby();
             created = profile.getCreated();
             banned = profile.isBanned();
             skillTeam = profile.getSkillTeam();
             voicePack = profile.getVoicePack();
+            offhand = new TransformUtil().itemToJson(profile.getOffhand());
+            hand = new TransformUtil().itemToJson(profile.getHand());
+            extra = new TransformUtil().toProfileItems(profile.getExtra());
+            voicepack_set = profile.isVoicepack_set();
         }
+    }
+
+    public boolean isVoicepack_set() {
+        return voicepack_set;
+    }
+
+    public ItemStack[] getExtra() {
+        return new TransformUtil().fromProfileItems(extra);
+    }
+
+    public void setExtra(ItemStack[] extra) {
+        this.extra = new TransformUtil().toProfileItems(extra);
+    }
+
+    public void setOffhand(ItemStack offhand) {
+        this.offhand = new TransformUtil().itemToJson(offhand);
+    }
+
+    public ItemStack getOffhand() {
+        return new TransformUtil().itemFromJson(offhand);
+    }
+
+    public void setHand(ItemStack hand) {
+        this.hand = new TransformUtil().itemToJson(hand);
+    }
+
+    public ItemStack getHand() {
+        return new TransformUtil().itemFromJson(hand);
+    }
+
+    public void setSoundSettings(SoundSettings soundSettings) {
+        this.soundSettings = new TransformUtil().toJson(soundSettings);
+    }
+
+    public SoundSettings getSoundSettings() {
+        return new TransformUtil().fromJson(soundSettings, SoundSettings.class);
     }
 
     public void setVoicePack(VoicePacks voicePack) {
         this.voicePack = voicePack;
+        this.voicepack_set = true;
     }
 
     public VoicePacks getVoicePack() {
@@ -112,16 +164,16 @@ public class Profile {
         return ruby;
     }
 
-    public String[] getArmor() {
-        return armor;
+    public ItemStack[] getArmor() {
+        return new TransformUtil().fromProfileItems(armor);
     }
 
-    public String[] getInventoryItems() {
-        return inventoryItems;
+    public ItemStack[] getInventoryItems() {
+        return new TransformUtil().fromProfileItems(inventoryItems);
     }
 
-    public ProfileLocation getLocation() {
-        return location;
+    public Location getLocation() {
+        return new TransformUtil().fromProfileLocation(location);
     }
 
     public long getCreated() {
@@ -136,8 +188,8 @@ public class Profile {
         return banned;
     }
 
-    public void setArmor(String[] armor) {
-        this.armor = armor;
+    public void setArmor(ItemStack[] armor) {
+        this.armor = new TransformUtil().toProfileItems(armor);
     }
 
     public void setBanned(boolean banned) {
@@ -156,12 +208,12 @@ public class Profile {
         this.hunger = hunger;
     }
 
-    public void setInventoryItems(String[] inventoryItems) {
-        this.inventoryItems = inventoryItems;
+    public void setInventoryItems(ItemStack[] inventoryItems) {
+        this.inventoryItems = new TransformUtil().toProfileItems(inventoryItems);
     }
 
-    public void setLocation(ProfileLocation location) {
-        this.location = location;
+    public void setLocation(Location location) {
+        this.location = new TransformUtil().toProfileLocation(location);
     }
 
     public void setRuby(double ruby) {
@@ -179,4 +231,8 @@ public class Profile {
         push.execute();
     }
 
+    @Override
+    public String toString() {
+        return new TransformUtil().toJson(this);
+    }
 }

@@ -69,7 +69,7 @@ public class LabyModDisplay {
         LabyAPI.getService().getPayloadCommunicator().sendLabyModMessage( receiver.getUniqueId(), "emote_api", array );
     }
 
-    public void playCinematic(Player player, List<Location> points, HashMap<Title, Long> titles, long duration, Location after) {
+    /*public void playCinematic(Player player, List<Location> points, HashMap<Title, Long> titles, long duration, Location after) {
         if(!hasLabyMod(player)) return;
         JsonObject cinematic = new JsonObject();
 
@@ -118,7 +118,7 @@ public class LabyModDisplay {
             player.setGameMode(GameMode.SURVIVAL);
             player.setAllowFlight(false);
         }, (duration / 100) + 1); // 1000MS = 1S
-    }
+    }*/
 
     public void cancelCinematic( Player player ) {
         if(!hasLabyMod(player)) return;

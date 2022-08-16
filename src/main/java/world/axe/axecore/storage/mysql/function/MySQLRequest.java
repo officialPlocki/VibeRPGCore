@@ -10,7 +10,7 @@ public class MySQLRequest {
 
     private Connection connection;
     private String statement;
-    private HashMap<String, String> requirements;
+    private final HashMap<String, String> requirements;
 
     public MySQLRequest() {
         requirements = new HashMap<>();
@@ -82,7 +82,6 @@ public class MySQLRequest {
             }
             return new MySQLResponse(values);
         } catch (Exception ex) {
-            Bukkit.getConsoleSender().sendMessage(statement);
             ex.printStackTrace();
         }
         return new MySQLResponse(null);

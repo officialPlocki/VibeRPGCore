@@ -1,6 +1,7 @@
 package world.axe.axecore.economy;
 
 import world.axe.axecore.AXECore;
+import world.axe.axecore.custom.LabyModDisplay;
 import world.axe.axecore.player.AXEPlayer;
 
 import java.sql.Connection;
@@ -28,6 +29,8 @@ public class MoneyAPI {
                 ex.printStackTrace();
             }
         }
+        new LabyModDisplay().updateRubyDisplay(player.getBukkitPlayer(), 0);
+        new LabyModDisplay().updateGemsDisplay(player.getBukkitPlayer(), 0);
     }
 
     public void addMoney(double money) {
@@ -45,6 +48,8 @@ public class MoneyAPI {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        new LabyModDisplay().updateRubyDisplay(player.getBukkitPlayer(), ((int) new MoneyAPI(player, Money.RUBY).getMoney()));
+        new LabyModDisplay().updateGemsDisplay(player.getBukkitPlayer(), ((int) new MoneyAPI(player, Money.GEMS).getMoney()));
     }
 
     public void removeMoney(double money) {
@@ -62,6 +67,8 @@ public class MoneyAPI {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        new LabyModDisplay().updateRubyDisplay(player.getBukkitPlayer(), ((int) new MoneyAPI(player, Money.RUBY).getMoney()));
+        new LabyModDisplay().updateGemsDisplay(player.getBukkitPlayer(), ((int) new MoneyAPI(player, Money.GEMS).getMoney()));
     }
 
     public double getMoney() {
@@ -87,6 +94,8 @@ public class MoneyAPI {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        new LabyModDisplay().updateRubyDisplay(player.getBukkitPlayer(), ((int) new MoneyAPI(player, Money.RUBY).getMoney()));
+        new LabyModDisplay().updateGemsDisplay(player.getBukkitPlayer(), ((int) new MoneyAPI(player, Money.GEMS).getMoney()));
     }
 
     public void setMoney(double money) {
@@ -98,6 +107,8 @@ public class MoneyAPI {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        new LabyModDisplay().updateRubyDisplay(player.getBukkitPlayer(), ((int) new MoneyAPI(player, Money.RUBY).getMoney()));
+        new LabyModDisplay().updateGemsDisplay(player.getBukkitPlayer(), ((int) new MoneyAPI(player, Money.GEMS).getMoney()));
     }
 
     public boolean hasMoney(double money) {

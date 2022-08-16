@@ -7,6 +7,8 @@ import world.axe.axecore.storage.mysql.function.MySQLTable;
 
 public class MySQLTask {
 
+    //@todo caching -> reduce mysql
+
     /**
      * This function returns a MySQLRequest object.
      *

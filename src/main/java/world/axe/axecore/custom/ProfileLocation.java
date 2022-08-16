@@ -2,7 +2,6 @@ package world.axe.axecore.custom;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 
 public class ProfileLocation {
 

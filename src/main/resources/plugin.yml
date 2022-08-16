@@ -9,9 +9,15 @@ depend:
   - MythicMobs
   - ModelEngine
   - OpenAudioMc
+  - LabyApi
 loadbefore:
   - ProtocolLib
   - MythicMobs
   - ModelEngine
   - OpenAudioMc
+  - LabyApi
 commands:
+  language:
+  voicepack:
+  settings:
+  profiles:

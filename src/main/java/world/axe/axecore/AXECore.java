@@ -3,17 +3,18 @@ package world.axe.axecore;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import world.axe.axecore.command.LanguageCommand;
+import world.axe.axecore.command.ProfileCommand;
+import world.axe.axecore.command.SettingsCommand;
+import world.axe.axecore.command.VoicePackCommand;
 import world.axe.axecore.custom.ItemModifier;
-import world.axe.axecore.listener.AudioListener;
-import world.axe.axecore.listener.PlayerListener;
+import world.axe.axecore.listener.*;
 import world.axe.axecore.player.RankManager;
 import world.axe.axecore.protocol.ProtocolHandler;
 import world.axe.axecore.storage.FileProvider;
 import world.axe.axecore.storage.MySQLDriver;
 import world.axe.axecore.util.AudioUtil;
 import world.axe.axecore.util.TranslationUtil;
-
-import java.util.UUID;
 
 public final class AXECore extends JavaPlugin {
 
@@ -36,7 +37,7 @@ public final class AXECore extends JavaPlugin {
             yml.set("mysql.user", "root");
             yml.set("mysql.password", "password");
             yml.set("mysql.database", "database");
-            yml.set("tp.sha-1", "SHA-1");
+            yml.set("tp.sha-1", "MD-5");
             yml.set("tp.url", "https://localhost/pack.zip");
             config.save();
             new ItemModifier();
@@ -44,13 +45,23 @@ public final class AXECore extends JavaPlugin {
             return;
         }
         driver = new MySQLDriver();
-        new TranslationUtil();
-        new ProtocolHandler(this).init();
-        ranks = new RankManager();
-        Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
-        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
-        audio = new AudioUtil(this);
-        Bukkit.getPluginManager().registerEvents(new AudioListener(), this);
+        if(driver.getDataSource().isRunning()) {
+            new TranslationUtil();
+            new ProtocolHandler(this).init();
+            ranks = new RankManager();
+            Bukkit.getPluginManager().registerEvents(new PlayerListener(), this);
+            Bukkit.getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+            audio = new AudioUtil(this, true);
+            Bukkit.getPluginManager().registerEvents(new AudioListener(), this);
+            Bukkit.getPluginManager().registerEvents(new LanguageListener(), this);
+            Bukkit.getPluginManager().registerEvents(new SettingsListener(), this);
+            Bukkit.getPluginManager().registerEvents(new VoicePackListener(), this);
+            Bukkit.getPluginManager().registerEvents(new ProfileListener(), this);
+            getCommand("language").setExecutor(new LanguageCommand());
+            getCommand("settings").setExecutor(new SettingsCommand());
+            getCommand("voicepack").setExecutor(new VoicePackCommand());
+            getCommand("profiles").setExecutor(new ProfileCommand());
+        }
     }
 
     @Override

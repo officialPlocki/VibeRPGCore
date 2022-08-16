@@ -11,9 +11,10 @@ public class MySQLPush {
 
     private Connection connection;
     private String statement;
-    private HashMap<String, String> requirements;
+    private final HashMap<String, String> requirements;
 
     public MySQLPush() {
+        this.requirements = new HashMap<>();
         try {
             this.connection = AXECore.getDriver().getDataSource().getConnection();
         } catch (Exception exception) {
@@ -73,7 +74,7 @@ public class MySQLPush {
             connection.prepareStatement(statement).executeUpdate();
         } catch (SQLException e) {
             Bukkit.getConsoleSender().sendMessage(statement);
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
