@@ -1,48 +1,40 @@
 package world.axe.axecore.storage.mysql.function;
 
-import org.bukkit.Bukkit;
 import world.axe.axecore.AXECore;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.util.HashMap;
 
 public class MySQLRequest {
 
-    private Connection connection;
     private String statement;
     private final HashMap<String, String> requirements;
 
     public MySQLRequest() {
         requirements = new HashMap<>();
-        try {
-            connection = AXECore.getDriver().getDataSource().getConnection();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
     }
 
     /**
      * Prepare a SELECT statement.
      *
      * @param select The columns you want to select.
-     * @param table The table you want to select from
-     * @return The MySQLRequest object.
+     * @param table  The table you want to select from
      */
-    public MySQLRequest prepare(String select, String table) {
+    public void prepare(String select, String table) {
         statement = "SELECT " + select + " FROM " + table;
-        return this;
     }
 
     /**
      * It adds a requirement to the request
      *
-     * @param value The column name
+     * @param value       The column name
      * @param requirement The value of the requirement.
-     * @return The MySQLRequest object.
      */
-    public MySQLRequest addRequirement(String value, Object requirement) {
+    public void addRequirement(String value, Object requirement) {
         requirements.put(value, requirement.toString());
-        return this;
     }
 
     /**
@@ -70,7 +62,7 @@ public class MySQLRequest {
                 });
             }
         }
-        try {
+        try(Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
             PreparedStatement exec = connection.prepareStatement(statement);
             ResultSet result = exec.executeQuery();
             ResultSetMetaData data = result.getMetaData();

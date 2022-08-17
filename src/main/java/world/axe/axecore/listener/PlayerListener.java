@@ -1,13 +1,12 @@
 package world.axe.axecore.listener;
 
+import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.inventory.Inventory;
@@ -21,24 +20,22 @@ import world.axe.axecore.player.Languages;
 import world.axe.axecore.player.Profile;
 import world.axe.axecore.player.RankManager;
 
-import java.util.Objects;
-
 public class PlayerListener implements Listener {
 
     // @todo chat message translation & colored chat
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onChat(AsyncPlayerChatEvent event) {
+    public void onChat(AsyncChatEvent event) {
         //NO ASCII!!!!!!!!!
         RankManager rank = AXECore.getRanks();
-        event.setFormat(rank.getPrefix(event.getPlayer()) + " " + "§7" + event.getPlayer().getName() + " " + rank.getSuffix(event.getPlayer()) + " §8» §7" + event.getMessage());
+        event.message(Component.text(rank.getPrefix(event.getPlayer()) + " " + "§7" + event.getPlayer().getName() + " " + rank.getSuffix(event.getPlayer()) + " §8» §7" + event.message()));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoin(PlayerJoinEvent event) {
-        /*if(!event.getPlayer().getClientBrandName().toLowerCase().contains("labymod")) {
+        if(!new LabyModDisplay().hasLabyMod(event.getPlayer())) {
             event.getPlayer().sendMessage("§c§lWe've noticed that you doesn't play with LabyMod.\n§c§lPlease rejoin to ignore this.\n§bGet LabyMod here:§7 https://labymod.net");
             // @todo kick, mysql entry and continue
-        }*/
+        }
         try {
             if(!event.getPlayer().hasResourcePack()) {
                 new AXEPlayer(event.getPlayer()).sendResourcePack();

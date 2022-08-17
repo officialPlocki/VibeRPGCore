@@ -2,6 +2,7 @@ package world.axe.axecore.player;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.JsonObject;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 import world.axe.axecore.custom.ProfileLocation;
@@ -13,6 +14,7 @@ import world.axe.axecore.storage.mysql.function.MySQLTable;
 import world.axe.axecore.util.TransformUtil;
 
 import javax.annotation.Nullable;
+import java.util.Random;
 import java.util.UUID;
 
 public class Profile {
@@ -21,27 +23,27 @@ public class Profile {
     @JsonProperty("originalUUID")
     private String originalUUID;
     @JsonProperty("skillTeam")
-    private SkillTeam skillTeam;
+    private SkillTeam skillTeam = SkillTeam.values()[new Random().nextInt(SkillTeam.values().length - 1)];
     @JsonProperty("hunger")
     private double hunger = 20;
     @JsonProperty("health")
     private double health = 20;
     @JsonProperty("location")
-    private ProfileLocation location;
+    private ProfileLocation location = new ProfileLocation(0,0,0,0,0, "world");
     @JsonProperty("voicepack")
     private VoicePacks voicePack = VoicePacks.male_a;
     @JsonProperty("voicepack_set")
     private boolean voicepack_set = false;
     @JsonProperty("extra")
-    private String[] extra;
+    private JsonObject[] extra;
     @JsonProperty("hand")
-    private String hand;
+    private JsonObject hand;
     @JsonProperty("offhand")
-    private String offhand;
+    private JsonObject offhand;
     @JsonProperty("inventory")
-    private String[] inventoryItems;
+    private JsonObject[] inventoryItems;
     @JsonProperty("armor")
-    private String[] armor;
+    private JsonObject[] armor;
     @JsonProperty("exp")
     private double exp = 0;
     @JsonProperty("ruby")
@@ -50,8 +52,26 @@ public class Profile {
     private long created = System.currentTimeMillis();
     @JsonProperty("banned")
     private boolean banned = false;
-    @JsonProperty("soundSettings")
-    private String soundSettings = new SoundSettings(null).toString();
+    @JsonProperty("jump")
+    private boolean jump = true;
+    @JsonProperty("breath")
+    private boolean breath = true;
+    @JsonProperty("death")
+    private boolean death = true;
+    @JsonProperty("attack")
+    private boolean attack = true;
+    @JsonProperty("damage")
+    private boolean damage = true;
+    @JsonProperty("notifications")
+    private boolean notifications = true;
+    @JsonProperty("ambientMusic")
+    private boolean ambientMusic = true;
+    @JsonProperty("otherUserSounds")
+    private boolean otherUserSounds = true;
+    @JsonProperty("ui")
+    private boolean ui = true;
+    @JsonProperty("announceMusic")
+    private boolean announce = true;
 
     @JsonCreator
     public Profile(@Nullable Profile profile) {
@@ -65,13 +85,14 @@ public class Profile {
                     uuid,
                     "{}");
             insert.execute();
-            save();
         } else {
             uuid = profile.getUUID();
             originalUUID = profile.getOriginalUUID();
             hunger = profile.getHunger();
             health = profile.getHealth();
-            location = new TransformUtil().toProfileLocation(profile.getLocation());
+            if(profile.getLocation() != null) {
+                location = new TransformUtil().toProfileLocation(profile.getLocation());
+            }
             inventoryItems = new TransformUtil().toProfileItems(profile.getInventoryItems());
             armor = new TransformUtil().toProfileItems(profile.getArmor());
             exp = profile.getExp();
@@ -84,7 +105,102 @@ public class Profile {
             hand = new TransformUtil().itemToJson(profile.getHand());
             extra = new TransformUtil().toProfileItems(profile.getExtra());
             voicepack_set = profile.isVoicepack_set();
+            jump = profile.isJump();
+            breath = profile.isBreath();
+            death = profile.isDeath();
+            damage = profile.isDamage();
+            attack = profile.isAttack();
+            notifications = profile.isNotifications();
+            ambientMusic = profile.isAmbientMusic();
+            otherUserSounds = profile.isOtherUserSounds();
+            ui = profile.isUi();
+            announce = profile.isAnnounce();
         }
+    }
+
+    public boolean isAnnounce() {
+        return announce;
+    }
+
+    public void setAnnounce(boolean announce) {
+        this.announce = announce;
+    }
+
+    public boolean isDamage() {
+        return damage;
+    }
+
+    public boolean isAttack() {
+        return attack;
+    }
+
+    public boolean isBreath() {
+        return breath;
+    }
+
+    public boolean isDeath() {
+        return death;
+    }
+
+    public boolean isJump() {
+        return jump;
+    }
+
+    public boolean isUi() {
+        return ui;
+    }
+
+    public boolean isAmbientMusic() {
+        return ambientMusic;
+    }
+
+    public boolean isNotifications() {
+        return notifications;
+    }
+
+    public boolean isOtherUserSounds() {
+        return otherUserSounds;
+    }
+
+    public void setDamage(boolean damage) {
+        this.damage = damage;
+    }
+
+    public void setAttack(boolean attack) {
+        this.attack = attack;
+    }
+
+    public void setBreath(boolean breath) {
+        this.breath = breath;
+    }
+
+    public void setDeath(boolean death) {
+        this.death = death;
+    }
+
+    public void setJump(boolean jump) {
+        this.jump = jump;
+    }
+
+    public void setNotification(boolean notification) {
+        this.notifications = notification;
+    }
+
+    public void setAmbientMusic(boolean ambientMusic) {
+        this.ambientMusic = ambientMusic;
+    }
+
+    @SuppressWarnings("unused")
+    public void setNotifications(boolean notifications) {
+        this.notifications = notifications;
+    }
+
+    public void setOtherUserSounds(boolean otherUserSounds) {
+        this.otherUserSounds = otherUserSounds;
+    }
+
+    public void setUi(boolean ui) {
+        this.ui = ui;
     }
 
     public boolean isVoicepack_set() {
@@ -115,13 +231,6 @@ public class Profile {
         return new TransformUtil().itemFromJson(hand);
     }
 
-    public void setSoundSettings(SoundSettings soundSettings) {
-        this.soundSettings = new TransformUtil().toJson(soundSettings);
-    }
-
-    public SoundSettings getSoundSettings() {
-        return new TransformUtil().fromJson(soundSettings, SoundSettings.class);
-    }
 
     public void setVoicePack(VoicePacks voicePack) {
         this.voicePack = voicePack;
@@ -132,6 +241,7 @@ public class Profile {
         return voicePack;
     }
 
+    @SuppressWarnings("unused")
     public void setSkillTeam(SkillTeam skillTeam) {
         this.skillTeam = skillTeam;
     }
@@ -192,6 +302,7 @@ public class Profile {
         this.armor = new TransformUtil().toProfileItems(armor);
     }
 
+    @SuppressWarnings("unused")
     public void setBanned(boolean banned) {
         this.banned = banned;
     }
@@ -204,6 +315,7 @@ public class Profile {
         this.health = health;
     }
 
+    @SuppressWarnings("unused")
     public void setHunger(double hunger) {
         this.hunger = hunger;
     }
@@ -216,10 +328,12 @@ public class Profile {
         this.location = new TransformUtil().toProfileLocation(location);
     }
 
+    @SuppressWarnings("unused")
     public void setRuby(double ruby) {
         this.ruby = ruby;
     }
 
+    @SuppressWarnings("unused")
     public void setUUID(String uuid) {
         this.uuid = uuid;
     }

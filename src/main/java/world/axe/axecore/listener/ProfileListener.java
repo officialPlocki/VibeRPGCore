@@ -17,8 +17,8 @@ import world.axe.axecore.player.AXEPlayer;
 import world.axe.axecore.player.Profile;
 import world.axe.axecore.util.TranslationUtil;
 
-import java.util.Date;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ProfileListener extends TranslationUtil implements Listener {
 
@@ -27,6 +27,7 @@ public class ProfileListener extends TranslationUtil implements Listener {
         define("Das Profil wurde erstellt.", "profile.message.profile_created");
     }
 
+    @SuppressWarnings("all")
     @EventHandler
     public void onClick(InventoryClickEvent event) {
         if(event.getCurrentItem() != null) {
@@ -45,23 +46,30 @@ public class ProfileListener extends TranslationUtil implements Listener {
                     for(int i = 0; i < inventory.getSize(); i++) {
                         inventory.setItem(i, filler);
                     }
-                    Profile[] profiles = player.getProfiles();
-                    for(int i = 0; i < profiles.length; i++) {
+                    List<String> profiles = Arrays.stream(new ProfileManager().getProfileUUIDs(player.getBukkitPlayer())).collect(Collectors.toList());
+                    int i = 0;
+                    List<String> used = new ArrayList<>();
+                    for(String u : profiles) {
+                        if(used.contains(u)) {
+                            continue;
+                        }
+                        used.add(u);
                         ItemStack item = new ItemStack(Material.PAPER);
                         ItemMeta meta = item.getItemMeta();
-                        Profile profile = profiles[i];
-                        if(Objects.equals(profile.getUUID(), player.getActiveProfile().getUUID())) {
+                        Profile profile = new ProfileManager().getProfile(u);
+                        event.getWhoClicked().sendMessage(u);
+                        if(Objects.equals(u, player.getActiveProfile().getUUID())) {
                             meta.addEnchant(Enchantment.KNOCKBACK, 0, true);
                             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                         }
-                        meta.setDisplayName("§e" + profile.getUUID());
+                        meta.setDisplayName("§e" + u);
                         meta.setLore(Lists.newArrayList("",
                                 "§aTeam: " + profile.getSkillTeam().name(),
                                 "§cHP: " + profile.getHealth(),
                                 "§eCD: " + new Date(profile.getCreated()),
                                 ""));
                         item.setItemMeta(meta);
-                        inventory.setItem(i, item);
+                        inventory.setItem(i++, item);
                     }
                     ItemStack create = new ItemStack(Material.GREEN_DYE);
                     ItemMeta createMeta = create.getItemMeta();
@@ -85,23 +93,30 @@ public class ProfileListener extends TranslationUtil implements Listener {
                             for(int i = 0; i < inventory.getSize(); i++) {
                                 inventory.setItem(i, filler);
                             }
-                            Profile[] profiles = player.getProfiles();
-                            for(int i = 0; i < profiles.length; i++) {
+                            List<String> profiles = Arrays.stream(new ProfileManager().getProfileUUIDs(player.getBukkitPlayer())).collect(Collectors.toList());
+                            int i = 0;
+                            List<String> used = new ArrayList<>();
+                            for(String u : profiles) {
+                                if(used.contains(u)) {
+                                    continue;
+                                }
+                                used.add(u);
                                 ItemStack item = new ItemStack(Material.PAPER);
                                 ItemMeta meta = item.getItemMeta();
-                                Profile profile = profiles[i];
-                                if(Objects.equals(profile.getUUID(), player.getActiveProfile().getUUID())) {
+                                Profile profile = new ProfileManager().getProfile(u);
+                                event.getWhoClicked().sendMessage(u);
+                                if(Objects.equals(u, player.getActiveProfile().getUUID())) {
                                     meta.addEnchant(Enchantment.KNOCKBACK, 0, true);
                                     meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                                 }
-                                meta.setDisplayName("§e" + profile.getUUID());
+                                meta.setDisplayName("§e" + u);
                                 meta.setLore(Lists.newArrayList("",
                                         "§aTeam: " + profile.getSkillTeam().name(),
                                         "§cHP: " + profile.getHealth(),
                                         "§eCD: " + new Date(profile.getCreated()),
                                         ""));
                                 item.setItemMeta(meta);
-                                inventory.setItem(i, item);
+                                inventory.setItem(i++, item);
                             }
                             ItemStack create = new ItemStack(Material.GREEN_DYE);
                             ItemMeta createMeta = create.getItemMeta();

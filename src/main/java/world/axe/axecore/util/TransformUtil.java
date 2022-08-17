@@ -1,39 +1,49 @@
 package world.axe.axecore.util;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import world.axe.axecore.custom.ProfileLocation;
 import world.axe.axecore.util.json.JsonItemStack;
 
 import java.util.List;
+import java.util.Objects;
 
 public class TransformUtil {
 
-    public @Nullable String toJson(Object obj) {
+    public @Nullable String toJson(@Nullable Object obj) {
+        if(obj == null) return null;
         try {
             return new Gson().toJson(obj);
         } catch (Exception exception) {
             exception.printStackTrace();
+            Bukkit.getConsoleSender().sendMessage(exception.getMessage());
         }
         return null;
     }
 
-    public @Nullable <T> T fromJson(String json, Class<T> clazz)  {
+    public @Nullable <T> T fromJson(@Nullable String json, @Nullable Class<T> clazz)  {
+        if(json == null) return null;
+        if(clazz == null) return null;
         try {
             return new Gson().fromJson(json, clazz);
         } catch (Exception exception) {
             exception.printStackTrace();
+            Bukkit.getConsoleSender().sendMessage(exception.getMessage());
+            Bukkit.getConsoleSender().sendMessage(json);
         }
         return null;
     }
 
-    public @Nullable Location fromProfileLocation(@NotNull ProfileLocation location) {
+    public @Nullable Location fromProfileLocation(@Nullable ProfileLocation location) {
+        if(location == null) return null;
         return new Location(Bukkit.getWorld(location.getWorld()), location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
     }
 
@@ -41,45 +51,79 @@ public class TransformUtil {
         return new ProfileLocation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch(), location.getWorld().getName());
     }
 
-    public String[] toProfileItems(ItemStack[] armor) {
-        String[] strings = new String[armor.length];
-        for (int i = 0; i < armor.length; i++) {
-            strings[i] = itemToJson(armor[i]);
+    public @Nullable JsonObject[] toProfileItems(@Nullable ItemStack[] armor) {
+        if(armor == null) return null;
+        ItemStack[] items = new ItemStack[armor.length];
+        int i = 0;
+        for(ItemStack stack : armor) {
+            items[i] = stack;
+            if(items[i] == null) {
+                items[i] = new ItemStack(Material.AIR);
+            }
+        }
+        JsonObject[] strings = new JsonObject[items.length];
+        for (int i2 = 0; i2 < items.length; i2++) {
+            JsonObject json = itemToJson(items[i2]);
+            if(json.isJsonNull()) {
+                strings[i2] = itemToJson(new ItemStack(Material.AIR));
+            } else {
+                if(armor[i2] == null) {
+                    strings[i2] = itemToJson(new ItemStack(Material.AIR));
+                } else {
+                    strings[i2] = json;
+                }
+            }
         }
         return strings;
     }
 
-    public ItemStack[] fromProfileItems(String[] armor) {
+    public @Nullable ItemStack[] fromProfileItems(@NotNull JsonObject[] armor) {
+        if(armor == null) return null;
         ItemStack[] strings = new ItemStack[armor.length];
         for (int i = 0; i < armor.length; i++) {
-            strings[i] = itemFromJson(armor[i]);
+            if(armor[i] == null) {
+                armor[i] = itemToJson(new ItemStack(Material.AIR));
+                continue;
+            }
+            if(armor[i].isJsonNull()) {
+                strings[i] = new ItemStack(Material.AIR);
+            } else {
+                ItemStack json = itemFromJson(armor[i]);
+                strings[i] = Objects.requireNonNullElseGet(json, () -> new ItemStack(Material.AIR));
+            }
         }
         return strings;
     }
 
-    public @NotNull String itemToJson(@NotNull ItemStack item) {
+    public @NotNull JsonObject itemToJson(@Nullable ItemStack item) {
         return JsonItemStack.toJson(item);
     }
 
-    public @Nullable ItemStack itemFromJson(@NotNull String json) {
+    public @Nullable ItemStack itemFromJson(@Nullable JsonObject json) {
+        if(json == null) return null;
         return JsonItemStack.fromJson(json);
     }
 
-    public JsonArray toJsonArray(List<String> strings) {
-        JsonArray array = new JsonArray();
-        for (String string : strings) {
-            array.add(string);
+    public @Nullable String toJsonArray(@Nullable List<String> strings) {
+        if(strings == null) return null;
+        JSONObject object = new JSONObject();
+        JSONArray array = new JSONArray();
+        for(String str : strings) {
+            array.put(str);
         }
-        return array;
+        object.put("array", array);
+        return object.toString();
     }
 
-    public String[] fromJsonArray(String json) {
-        List<Object> objects = new JSONArray(json).toList();
-        String[] array = new String[objects.size()];
-        for (int i = 0; i < objects.size(); i++) {
-            array[i] = (String) objects.get(i);
+    public @Nullable String[] fromJsonArray(@Nullable String json) {
+        if(json == null) return null;
+        JSONObject object = new JSONObject(json);
+        JSONArray array = object.getJSONArray("array");
+        String[] strings = new String[array.length()];
+        for (int i = 0; i < array.length(); i++) {
+            strings[i] = (String) array.get(i);
         }
-        return array;
+        return strings;
     }
 
 }

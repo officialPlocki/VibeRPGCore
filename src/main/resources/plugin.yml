@@ -18,6 +18,17 @@ loadbefore:
   - LabyApi
 commands:
   language:
+    aliases:
+      - lang
   voicepack:
+    aliases:
+      - vp
+      - voice
+      - voices
   settings:
+    aliases: setting
   profiles:
+    aliases:
+      - profile
+  measure:
+    permission: axe.measure

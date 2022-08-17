@@ -13,6 +13,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.*;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -22,9 +24,10 @@ import java.util.*;
  * @author DevSrSouza
  * @version 1.0
  *
- * https://github.com/DevSrSouza/
- * You can find updates here https://gist.github.com/DevSrSouza
+ * <a href="https://github.com/DevSrSouza/">...</a>
+ * You can <a href="find">updates here https://gist.git</a>hub.com/DevSrSouza
  */
+@SuppressWarnings("all")
 public class JsonItemStack {
 
     private static final String[] BYPASS_CLASS = {"CraftMetaBlockState", "CraftMetaItem"
@@ -35,11 +38,14 @@ public class JsonItemStack {
      * @param itemStack The {@link ItemStack} instance
      * @return The JSON string
      */
-    public static String toJson(ItemStack itemStack) {
+    public static @NotNull JsonObject toJson(@Nullable ItemStack itemStack) {
 
         Gson gson = new Gson();
         JsonObject itemJson = new JsonObject();
 
+        if(itemStack == null) {
+            itemStack = new ItemStack(Material.AIR);
+        }
 
         itemJson.addProperty("type", itemStack.getType().name());
         if (itemStack.getDurability() > 0) itemJson.addProperty("data", itemStack.getDurability());
@@ -57,7 +63,7 @@ public class JsonItemStack {
             }
             if (meta.hasLore()) {
                 JsonArray lore = new JsonArray();
-                meta.getLore().forEach(str -> lore.add(new JsonPrimitive(str)));
+                Objects.requireNonNull(meta.getLore()).forEach(str -> lore.add(new JsonPrimitive(str)));
                 metaJson.add("lore", lore);
             }
             if (meta.hasEnchants()) {
@@ -76,7 +82,7 @@ public class JsonItemStack {
             for (String clazz : BYPASS_CLASS) {
                 if (meta.getClass().getSimpleName().equals(clazz)) {
                     itemJson.add("item-meta", metaJson);
-                    return gson.toJson(itemJson);
+                    return itemJson;
                 }
             }
 
@@ -157,6 +163,7 @@ public class JsonItemStack {
                     FireworkEffect effect = femeta.getEffect();
                     JsonObject extraMeta = new JsonObject();
 
+                    assert effect != null;
                     extraMeta.addProperty("type", effect.getType().name());
                     if (effect.hasFlicker()) extraMeta.addProperty("flicker", true);
                     if (effect.hasTrail()) extraMeta.addProperty("trail", true);
@@ -230,7 +237,7 @@ public class JsonItemStack {
 
             itemJson.add("item-meta", metaJson);
         }
-        return gson.toJson(itemJson);
+        return itemJson;
     }
 
     /**
@@ -239,11 +246,10 @@ public class JsonItemStack {
      * @param string The JSON string
      * @return The {@link ItemStack} or null if not succeed
      */
-    public static ItemStack fromJson(String string) {
-        JsonParser parser = new JsonParser();
-        JsonElement element = parser.parse(string);
-        if (element.isJsonObject()) {
-            JsonObject itemJson = element.getAsJsonObject();
+    public static @NotNull ItemStack fromJson(@Nullable JsonObject string) {
+        if(string == null) return new ItemStack(Material.AIR);
+        if (string.isJsonObject()) {
+            JsonObject itemJson = string.getAsJsonObject();
 
             JsonElement typeElement = itemJson.get("type");
             JsonElement dataElement = itemJson.get("data");
@@ -255,7 +261,7 @@ public class JsonItemStack {
                 short data = dataElement != null ? dataElement.getAsShort() : 0;
                 int amount = amountElement != null ? amountElement.getAsInt() : 1;
 
-                ItemStack itemStack = new ItemStack(Material.getMaterial(type));
+                ItemStack itemStack = new ItemStack(Objects.requireNonNull(Material.getMaterial(type)));
                 itemStack.setDurability(data);
                 itemStack.setAmount(amount);
 
@@ -293,7 +299,7 @@ public class JsonItemStack {
                                         if (enchantment != null && level > 0) {
                                             meta.addEnchant(enchantment, level, true);
                                         }
-                                    } catch (NumberFormatException ex) {
+                                    } catch (NumberFormatException ignored) {
                                     }
                                 }
                             }
@@ -339,10 +345,8 @@ public class JsonItemStack {
                                         Optional<DyeColor> color = Arrays.stream(DyeColor.values())
                                                 .filter(dyeColor -> dyeColor.name().equalsIgnoreCase(baseColorElement.getAsString()))
                                                 .findFirst();
-                                        if (color.isPresent()) {
-                                            bmeta.setBaseColor(color.get());
-                                        }
-                                    } catch (NumberFormatException ex) {
+                                        color.ifPresent(bmeta::setBaseColor);
+                                    } catch (NumberFormatException ignored) {
                                     }
                                 }
                                 if (patternsElement != null && patternsElement.isJsonArray()) {
@@ -379,7 +383,7 @@ public class JsonItemStack {
                                                     if (enchantment != null && level > 0) {
                                                         esmeta.addStoredEnchant(enchantment, level, true);
                                                     }
-                                                } catch (NumberFormatException ex) {
+                                                } catch (NumberFormatException ignored) {
                                                 }
                                             }
                                         }
@@ -391,7 +395,7 @@ public class JsonItemStack {
                                     LeatherArmorMeta lameta = (LeatherArmorMeta) meta;
                                     try {
                                         lameta.setColor(Color.fromRGB(Integer.parseInt(colorElement.getAsString(), 16)));
-                                    } catch (NumberFormatException ex) {
+                                    } catch (NumberFormatException ignored) {
                                     }
                                 }
                             } else if (meta instanceof BookMeta) {
@@ -432,7 +436,7 @@ public class JsonItemStack {
                                                     if (potionType != null) {
                                                         pmeta.addCustomEffect(new PotionEffect(potionType, amplifier, duration), true);
                                                     }
-                                                } catch (NumberFormatException ex) {
+                                                } catch (NumberFormatException ignored) {
                                                 }
                                             }
                                         }
@@ -450,33 +454,31 @@ public class JsonItemStack {
 
                                     FireworkEffect.Type effectType = FireworkEffect.Type.valueOf(effectTypeElement.getAsString());
 
-                                    if (effectType != null) {
-                                        List<Color> colors = new ArrayList<>();
-                                        if (colorsElement != null && colorsElement.isJsonArray())
-                                            colorsElement.getAsJsonArray().forEach(colorElement -> {
-                                                if (colorElement.isJsonPrimitive())
-                                                    colors.add(Color.fromRGB(Integer.parseInt(colorElement.getAsString(), 16)));
-                                            });
+                                    List<Color> colors = new ArrayList<>();
+                                    if (colorsElement != null && colorsElement.isJsonArray())
+                                        colorsElement.getAsJsonArray().forEach(colorElement -> {
+                                            if (colorElement.isJsonPrimitive())
+                                                colors.add(Color.fromRGB(Integer.parseInt(colorElement.getAsString(), 16)));
+                                        });
 
-                                        List<Color> fadeColors = new ArrayList<>();
-                                        if (fadeColorsElement != null && fadeColorsElement.isJsonArray())
-                                            fadeColorsElement.getAsJsonArray().forEach(colorElement -> {
-                                                if (colorElement.isJsonPrimitive())
-                                                    fadeColors.add(Color.fromRGB(Integer.parseInt(colorElement.getAsString(), 16)));
-                                            });
+                                    List<Color> fadeColors = new ArrayList<>();
+                                    if (fadeColorsElement != null && fadeColorsElement.isJsonArray())
+                                        fadeColorsElement.getAsJsonArray().forEach(colorElement -> {
+                                            if (colorElement.isJsonPrimitive())
+                                                fadeColors.add(Color.fromRGB(Integer.parseInt(colorElement.getAsString(), 16)));
+                                        });
 
-                                        FireworkEffect.Builder builder = FireworkEffect.builder().with(effectType);
+                                    FireworkEffect.Builder builder = FireworkEffect.builder().with(effectType);
 
-                                        if (flickerElement != null && flickerElement.isJsonPrimitive())
-                                            builder.flicker(flickerElement.getAsBoolean());
-                                        if (trailElement != null && trailElement.isJsonPrimitive())
-                                            builder.trail(trailElement.getAsBoolean());
+                                    if (flickerElement != null && flickerElement.isJsonPrimitive())
+                                        builder.flicker(flickerElement.getAsBoolean());
+                                    if (trailElement != null && trailElement.isJsonPrimitive())
+                                        builder.trail(trailElement.getAsBoolean());
 
-                                        if (!colors.isEmpty()) builder.withColor(colors);
-                                        if (!fadeColors.isEmpty()) builder.withFade(fadeColors);
+                                    if (!colors.isEmpty()) builder.withColor(colors);
+                                    if (!fadeColors.isEmpty()) builder.withFade(fadeColors);
 
-                                        femeta.setEffect(builder.build());
-                                    }
+                                    femeta.setEffect(builder.build());
                                 }
                             } else if (meta instanceof FireworkMeta) {
                                 FireworkMeta fmeta = (FireworkMeta) meta;
@@ -505,33 +507,31 @@ public class JsonItemStack {
 
                                                 FireworkEffect.Type effectType = FireworkEffect.Type.valueOf(effectTypeElement.getAsString());
 
-                                                if (effectType != null) {
-                                                    List<Color> colors = new ArrayList<>();
-                                                    if (colorsElement != null && colorsElement.isJsonArray())
-                                                        colorsElement.getAsJsonArray().forEach(colorElement -> {
-                                                            if (colorElement.isJsonPrimitive())
-                                                                colors.add(Color.fromRGB(Integer.parseInt(colorElement.getAsString(), 16)));
-                                                        });
+                                                List<Color> colors = new ArrayList<>();
+                                                if (colorsElement != null && colorsElement.isJsonArray())
+                                                    colorsElement.getAsJsonArray().forEach(colorElement -> {
+                                                        if (colorElement.isJsonPrimitive())
+                                                            colors.add(Color.fromRGB(Integer.parseInt(colorElement.getAsString(), 16)));
+                                                    });
 
-                                                    List<Color> fadeColors = new ArrayList<>();
-                                                    if (fadeColorsElement != null && fadeColorsElement.isJsonArray())
-                                                        fadeColorsElement.getAsJsonArray().forEach(colorElement -> {
-                                                            if (colorElement.isJsonPrimitive())
-                                                                fadeColors.add(Color.fromRGB(Integer.parseInt(colorElement.getAsString(), 16)));
-                                                        });
+                                                List<Color> fadeColors = new ArrayList<>();
+                                                if (fadeColorsElement != null && fadeColorsElement.isJsonArray())
+                                                    fadeColorsElement.getAsJsonArray().forEach(colorElement -> {
+                                                        if (colorElement.isJsonPrimitive())
+                                                            fadeColors.add(Color.fromRGB(Integer.parseInt(colorElement.getAsString(), 16)));
+                                                    });
 
-                                                    FireworkEffect.Builder builder = FireworkEffect.builder().with(effectType);
+                                                FireworkEffect.Builder builder = FireworkEffect.builder().with(effectType);
 
-                                                    if (flickerElement != null && flickerElement.isJsonPrimitive())
-                                                        builder.flicker(flickerElement.getAsBoolean());
-                                                    if (trailElement != null && trailElement.isJsonPrimitive())
-                                                        builder.trail(trailElement.getAsBoolean());
+                                                if (flickerElement != null && flickerElement.isJsonPrimitive())
+                                                    builder.flicker(flickerElement.getAsBoolean());
+                                                if (trailElement != null && trailElement.isJsonPrimitive())
+                                                    builder.trail(trailElement.getAsBoolean());
 
-                                                    if (!colors.isEmpty()) builder.withColor(colors);
-                                                    if (!fadeColors.isEmpty()) builder.withFade(fadeColors);
+                                                if (!colors.isEmpty()) builder.withColor(colors);
+                                                if (!fadeColors.isEmpty()) builder.withFade(fadeColors);
 
-                                                    fmeta.addEffect(builder.build());
-                                                }
+                                                fmeta.addEffect(builder.build());
                                             }
                                         }
                                     });
@@ -555,12 +555,12 @@ public class JsonItemStack {
                                     mmeta.setColor(Color.fromRGB(Integer.parseInt(colorElement.getAsString(), 16)));
                                 }*/
                             }
-                        } catch (Exception e) {return null;}
+                        } catch (Exception e) {return new ItemStack(Material.AIR);}
                     }
                     itemStack.setItemMeta(meta);
                 }
                 return itemStack;
-            } else return null;
-        } else return null;
+            } else return new ItemStack(Material.AIR);
+        } else return new ItemStack(Material.AIR);
     }
 }

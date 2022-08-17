@@ -3,10 +3,7 @@ package world.axe.axecore;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-import world.axe.axecore.command.LanguageCommand;
-import world.axe.axecore.command.ProfileCommand;
-import world.axe.axecore.command.SettingsCommand;
-import world.axe.axecore.command.VoicePackCommand;
+import world.axe.axecore.command.*;
 import world.axe.axecore.custom.ItemModifier;
 import world.axe.axecore.listener.*;
 import world.axe.axecore.player.RankManager;
@@ -16,9 +13,13 @@ import world.axe.axecore.storage.MySQLDriver;
 import world.axe.axecore.util.AudioUtil;
 import world.axe.axecore.util.TranslationUtil;
 
+import java.util.Objects;
+
 public final class AXECore extends JavaPlugin {
 
     // @todo vault money integration
+    // @todo fix settings interaction (not working)
+    // @todo fix profile change (doesn't change profile)
 
     private static MySQLDriver driver;
     private static FileProvider config;
@@ -57,10 +58,11 @@ public final class AXECore extends JavaPlugin {
             Bukkit.getPluginManager().registerEvents(new SettingsListener(), this);
             Bukkit.getPluginManager().registerEvents(new VoicePackListener(), this);
             Bukkit.getPluginManager().registerEvents(new ProfileListener(), this);
-            getCommand("language").setExecutor(new LanguageCommand());
-            getCommand("settings").setExecutor(new SettingsCommand());
-            getCommand("voicepack").setExecutor(new VoicePackCommand());
-            getCommand("profiles").setExecutor(new ProfileCommand());
+            Objects.requireNonNull(getCommand("language")).setExecutor(new LanguageCommand());
+            Objects.requireNonNull(getCommand("settings")).setExecutor(new SettingsCommand());
+            Objects.requireNonNull(getCommand("voicepack")).setExecutor(new VoicePackCommand());
+            Objects.requireNonNull(getCommand("profiles")).setExecutor(new ProfileCommand());
+            Objects.requireNonNull(getCommand("measure")).setExecutor(new MeasureCommand());
         }
     }
 

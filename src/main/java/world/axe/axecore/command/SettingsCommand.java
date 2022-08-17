@@ -15,7 +15,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import world.axe.axecore.player.AXEPlayer;
 import world.axe.axecore.player.Profile;
-import world.axe.axecore.player.SoundSettings;
 import world.axe.axecore.util.TranslationUtil;
 
 public class SettingsCommand extends TranslationUtil implements CommandExecutor {
@@ -40,19 +39,18 @@ public class SettingsCommand extends TranslationUtil implements CommandExecutor 
         Inventory inventory = Bukkit.createInventory(null, 3 * 9, Component.text(key("settings.inventory.title", player)));
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fillerMeta = filler.getItemMeta();
-        fillerMeta.setDisplayName("§f");
+        fillerMeta.displayName(Component.text("§f"));
         filler.setItemMeta(fillerMeta);
         for(int i = 0; i < inventory.getSize(); i++) {
             inventory.setItem(i, filler);
         }
 
         Profile profile = player.getActiveProfile();
-        SoundSettings settings = profile.getSoundSettings();
         
         ItemStack jumpSound = new ItemStack(Material.STONE_BUTTON);
         ItemMeta jumpMeta = jumpSound.getItemMeta();
         jumpMeta.displayName(Component.text("§e" + key("settings.item.jump", player)));
-        if(settings.isJump()) {
+        if(profile.isJump()) {
             jumpMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
             jumpMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
@@ -61,7 +59,7 @@ public class SettingsCommand extends TranslationUtil implements CommandExecutor 
         ItemStack breathSound = new ItemStack(Material.STONE_BUTTON);
         ItemMeta breathMeta = breathSound.getItemMeta();
         breathMeta.displayName(Component.text("§e" + key("settings.item.breath", player)));
-        if(settings.isBreath()) {
+        if(profile.isBreath()) {
             breathMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
             breathMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
@@ -70,7 +68,7 @@ public class SettingsCommand extends TranslationUtil implements CommandExecutor 
         ItemStack deathSound = new ItemStack(Material.STONE_BUTTON);
         ItemMeta deathMeta = deathSound.getItemMeta();
         deathMeta.displayName(Component.text("§e" + key("settings.item.death", player)));
-        if(settings.isDeath()) {
+        if(profile.isDeath()) {
             deathMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
             deathMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
@@ -79,7 +77,7 @@ public class SettingsCommand extends TranslationUtil implements CommandExecutor 
         ItemStack damageSound = new ItemStack(Material.STONE_BUTTON);
         ItemMeta damageMeta = damageSound.getItemMeta();
         damageMeta.displayName(Component.text("§e" + key("settings.item.damage", player)));
-        if(settings.isDamage()) {
+        if(profile.isDamage()) {
             damageMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
             damageMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
@@ -88,7 +86,7 @@ public class SettingsCommand extends TranslationUtil implements CommandExecutor 
         ItemStack notificationSound = new ItemStack(Material.STONE_BUTTON);
         ItemMeta notificationMeta = notificationSound.getItemMeta();
         notificationMeta.displayName(Component.text("§e" + key("settings.item.notification", player)));
-        if(settings.isNotifications()) {
+        if(profile.isNotifications()) {
             notificationMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
             notificationMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
@@ -97,7 +95,7 @@ public class SettingsCommand extends TranslationUtil implements CommandExecutor 
         ItemStack ambientMusicSound = new ItemStack(Material.STONE_BUTTON);
         ItemMeta ambientMusicMeta = ambientMusicSound.getItemMeta();
         ambientMusicMeta.displayName(Component.text("§e" + key("settings.item.ambientMusic", player)));
-        if(settings.isAmbientMusic()) {
+        if(profile.isAmbientMusic()) {
             ambientMusicMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
             ambientMusicMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
@@ -106,7 +104,7 @@ public class SettingsCommand extends TranslationUtil implements CommandExecutor 
         ItemStack otherPlayerSound = new ItemStack(Material.STONE_BUTTON);
         ItemMeta otherPlayerMeta = otherPlayerSound.getItemMeta();
         otherPlayerMeta.displayName(Component.text("§e" + key("settings.item.otherPlayer", player)));
-        if(settings.isOtherUserSounds()) {
+        if(profile.isOtherUserSounds()) {
             otherPlayerMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
             otherPlayerMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
@@ -115,7 +113,7 @@ public class SettingsCommand extends TranslationUtil implements CommandExecutor 
         ItemStack uiSound = new ItemStack(Material.STONE_BUTTON);
         ItemMeta uiMeta = uiSound.getItemMeta();
         uiMeta.displayName(Component.text("§e" + key("settings.item.ui", player)));
-        if(settings.isUi()) {
+        if(profile.isUi()) {
             uiMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
             uiMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
@@ -124,7 +122,7 @@ public class SettingsCommand extends TranslationUtil implements CommandExecutor 
         ItemStack announceSound = new ItemStack(Material.STONE_BUTTON);
         ItemMeta announceMeta = announceSound.getItemMeta();
         announceMeta.displayName(Component.text("§e" + key("settings.item.announce", player)));
-        if(settings.isAnnounce()) {
+        if(profile.isAnnounce()) {
             announceMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
             announceMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
@@ -133,7 +131,7 @@ public class SettingsCommand extends TranslationUtil implements CommandExecutor 
         ItemStack attackSound = new ItemStack(Material.STONE_BUTTON);
         ItemMeta attackMeta = attackSound.getItemMeta();
         attackMeta.displayName(Component.text("§e" + key("settings.item.attack", player)));
-        if(settings.isAttack()) {
+        if(profile.isAttack()) {
             attackMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
             attackMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }

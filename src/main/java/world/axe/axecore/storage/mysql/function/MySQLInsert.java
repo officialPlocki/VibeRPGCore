@@ -8,16 +8,10 @@ import java.sql.SQLException;
 
 public class MySQLInsert {
 
-    private Connection connection;
-    private final StringBuilder statement;
+    private StringBuilder statement;
 
     public MySQLInsert() {
         statement = new StringBuilder();
-        try {
-            connection = AXECore.getDriver().getDataSource().getConnection();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
     }
 
     /**
@@ -49,6 +43,8 @@ public class MySQLInsert {
                }
                i[0] = i[0] + 1;
            }
+       } else {
+           statement = new StringBuilder("empty");
        }
     }
 
@@ -56,7 +52,8 @@ public class MySQLInsert {
      * It executes a SQL statement.
      */
     public void execute() {
-        try {
+        if(statement.toString().equalsIgnoreCase("empty")) return;
+        try(Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
             connection.prepareStatement(statement.toString()).executeLargeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

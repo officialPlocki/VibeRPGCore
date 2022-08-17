@@ -22,6 +22,7 @@ public class VoicePackListener extends TranslationUtil implements Listener {
         define("Das Sprachpaket wurde gewechselt.", "voicepack.message.changed");
     }
 
+    @SuppressWarnings("all")
     @EventHandler
     public void onClick(InventoryClickEvent event) {
         if(event.getCurrentItem() != null) {
@@ -31,9 +32,9 @@ public class VoicePackListener extends TranslationUtil implements Listener {
                 if(event.getCurrentItem().getItemMeta().getDisplayName().contains(key("voicepack.female", player)) || event.getCurrentItem().getItemMeta().getDisplayName().contains(key("voicepack.male", player))) {
                     String pack = "";
                     if(event.getCurrentItem().getItemMeta().getDisplayName().contains(key("voicepack.female", player))) {
-                        pack = "female_" + event.getCurrentItem().getItemMeta().getDisplayName().replaceAll(event.getCurrentItem().getItemMeta().getDisplayName().contains(key("voicepack.female", player)) + " ", "");
+                        pack = "female_" + event.getCurrentItem().getItemMeta().getDisplayName().charAt(event.getCurrentItem().getItemMeta().getDisplayName().length() - 1);
                     } else {
-                        pack = "male_" + event.getCurrentItem().getItemMeta().getDisplayName().replaceAll(event.getCurrentItem().getItemMeta().getDisplayName().contains(key("voicepack.male", player)) + " ", "");
+                        pack = "male_" + event.getCurrentItem().getItemMeta().getDisplayName().charAt(event.getCurrentItem().getItemMeta().getDisplayName().length() - 1);
                     }
                     Profile profile = player.getActiveProfile();
                     profile.setVoicePack(VoicePacks.valueOf(pack.toLowerCase()));

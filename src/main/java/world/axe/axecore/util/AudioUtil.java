@@ -6,12 +6,15 @@ import com.craftmend.openaudiomc.generic.media.objects.MediaOptions;
 import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Biome;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import world.axe.axecore.player.AXEPlayer;
+import world.axe.axecore.player.Profile;
 import world.axe.axecore.player.VoicePacks;
 import world.axe.axecore.storage.FileProvider;
 
@@ -58,21 +61,27 @@ public class AudioUtil {
                 }
             }), 20,20);
             Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> Bukkit.getOnlinePlayers().forEach((player) -> {
-                VoicePacks pack = VoicePacks.male_a;
-                if(pack.name().contains("male")) {
-                    playSound(player, "voice_male_c_breath_loop_01_single_01", 5, false);
-                } else {
-                    playSound(player, "voice_female_a_breath_quick_01", 5, false);
+                Profile profile = new AXEPlayer(player).getActiveProfile();
+                if(profile.isBreath()) {
+                    VoicePacks pack = profile.getVoicePack();
+                    if(pack.name().contains("male")) {
+                        playSound(player, "voice_male_c_breath_loop_01_single_01", 5, false);
+                    } else {
+                        playSound(player, "voice_female_a_breath_quick_01", 5, false);
+                    }
                 }
             }), 20,355);
         }
     }
-
+    @SuppressWarnings("all")
     public boolean isConnected(Player player) {
         return AudioApi.getInstance().isClientConnected(player.getUniqueId());
     }
 
-    public void measureLength() {
+    public void measureLength(CommandSender... sender) {
+        if(sender[0] != null) {
+            sender[0].sendMessage("..");
+        }
         List<String> sounds = getSounds();
         for(String sound : sounds) {
             String url = getSoundURL(sound);
@@ -80,10 +89,14 @@ public class AudioUtil {
             File file = new File(fileName);
             if(!file.exists()) {
                 try {
-                    file.createNewFile();
+                    @SuppressWarnings("unused")
+                    boolean b = file.createNewFile();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
+            }
+            if(sender[0] != null) {
+                sender[0].sendMessage("..");
             }
             try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
                  FileOutputStream fileOutputStream = new FileOutputStream(file)) {
@@ -95,16 +108,23 @@ public class AudioUtil {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+            if(sender[0] != null) {
+                sender[0].sendMessage("...");
+            }
             try {
                 AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file);
                 long frames = audioInputStream.getFrameLength();
                 double s = (frames+0.0) / audioInputStream.getFormat().getFrameRate();
                 yml.set("sounds." + sound + ".length", s);
                 provider.save();
+                if(sender[0] != null) {
+                    sender[0].sendMessage("....");
+                }
             } catch (UnsupportedAudioFileException | IOException e) {
                 throw new RuntimeException(e);
             }
-            file.delete();
+            @SuppressWarnings("unused")
+            boolean b = file.delete();
         }
     }
 
@@ -113,6 +133,90 @@ public class AudioUtil {
         return remaining.containsKey(player);
     }
 
+    public void importSounds(String file, CommandSender sender) {
+        JSONParser parser = new JSONParser();
+        sender.sendMessage("starting...");
+        try {
+            //new FileProvider(file).getFile()
+            Object obj = parser.parse(new FileReader(new FileProvider(file).getFile()));
+            JSONObject jsonObject =  (JSONObject) obj;
+
+            List<String> types = new ArrayList<>();
+            JSONArray t = (JSONArray) jsonObject.get("types");
+            for (Object o : t) {
+                types.add((String) o);
+            }
+
+            JSONObject urlObj = (JSONObject) jsonObject.get("urls");
+            JSONObject settingsObj = (JSONObject) jsonObject.get("settings");
+            JSONObject placeholderObj = (JSONObject) jsonObject.get("placeholder");
+            JSONObject soundsObj = (JSONObject) jsonObject.get("sounds");
+            for(String type : types) {
+                boolean isArray = (boolean) jsonObject.get(type + "ARRAY");
+                String url = (String) urlObj.get(type + "_url");
+                List<String> placeholders = new ArrayList<>();
+                JSONArray a = (JSONArray) placeholderObj.get(type + "_soundname_replace");
+                for (Object o : a) {
+                    placeholders.add((String) o);
+                }
+                int volume = Integer.parseInt(String.valueOf((long) settingsObj.get(type + "_volume")));
+
+                if(isArray) {
+                    List<String> sounds = new ArrayList<>();
+                    JSONArray array = (JSONArray) soundsObj.get(type);
+                    for (Object o : array) {
+                        sounds.add((String) o);
+                    }
+                    for(String sound : sounds) {
+                        String soundFileName = sound;
+                        for(String replacement : placeholders) {
+                            sound = sound.replaceAll(replacement, "");
+                        }
+                        List<String> list = yml.getStringList("soundList");
+                        list.add(sound.toLowerCase());
+                        yml.set("soundList", list);
+                        yml.set("sounds." + sound.toLowerCase() + ".volume", volume);
+                        yml.set("sounds." + sound.toLowerCase() + ".url", url + soundFileName);
+                        provider.save();
+                        sender.sendMessage(".");
+                    }
+                } else {
+                    JSONArray uTypes = (JSONArray) jsonObject.get(type + "UNDERTYPES");
+                    List<String> ut = new ArrayList<>();
+                    for (Object uType : uTypes) {
+                        ut.add((String) uType);
+                    }
+                    JSONObject over = (JSONObject) soundsObj.get(type);
+                    for(String underType : ut) {
+                        String uURL = url.replaceAll("%TYPE%", underType);
+                        List<String> sounds = new ArrayList<>();
+                        JSONArray array = (JSONArray) over.get(underType);
+                        for (Object o : array) {
+                            sounds.add((String) o);
+                        }
+                        for(String sound : sounds) {
+                            String soundFileName = sound;
+                            for(String replacement : placeholders) {
+                                sound = sound.replaceAll(replacement, "");
+                            }
+                            List<String> list = yml.getStringList("soundList");
+                            list.add(sound.toLowerCase());
+                            yml.set("soundList", list);
+                            yml.set("sounds." + sound.toLowerCase() + ".volume", volume);
+                            yml.set("sounds." + sound.toLowerCase() + ".url", uURL + soundFileName);
+                            provider.save();
+                            sender.sendMessage(".");
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        measureLength(sender);
+    }
+
+    @SuppressWarnings("unused")
     public void importSounds(String file) {
         JSONParser parser = new JSONParser();
         try {
@@ -143,8 +247,8 @@ public class AudioUtil {
                 if(isArray) {
                     List<String> sounds = new ArrayList<>();
                     JSONArray array = (JSONArray) soundsObj.get(type);
-                    for(int i = 0; i < array.size(); i++) {
-                        sounds.add((String) array.get(i));
+                    for (Object o : array) {
+                        sounds.add((String) o);
                     }
                     for(String sound : sounds) {
                         String soundFileName = sound;
@@ -161,16 +265,16 @@ public class AudioUtil {
                 } else {
                     JSONArray uTypes = (JSONArray) jsonObject.get(type + "UNDERTYPES");
                     List<String> ut = new ArrayList<>();
-                    for(int i = 0; i < uTypes.size(); i++) {
-                        ut.add((String) uTypes.get(i));
+                    for (Object uType : uTypes) {
+                        ut.add((String) uType);
                     }
                     JSONObject over = (JSONObject) soundsObj.get(type);
                     for(String underType : ut) {
                         String uURL = url.replaceAll("%TYPE%", underType);
                         List<String> sounds = new ArrayList<>();
                         JSONArray array = (JSONArray) over.get(underType);
-                        for(int i = 0; i < array.size(); i++) {
-                            sounds.add((String) array.get(i));
+                        for (Object o : array) {
+                            sounds.add((String) o);
                         }
                         for(String sound : sounds) {
                             String soundFileName = sound;
@@ -220,6 +324,7 @@ public class AudioUtil {
         return yml.getStringList("soundPack." + name + ".sounds");
     }
 
+    @SuppressWarnings("unused")
     public List<String> getRegionMusic(String region) {
         List<String> list = new ArrayList<>();
         if(!yml.getStringList("worldguard." + region + ".pack").isEmpty()) {
@@ -259,17 +364,21 @@ public class AudioUtil {
      * @param music If the sound is a music sound, it will be played only for the player.
      * @param ui If the sound is a UI sound, it will only play for the player.
      */
+    @SuppressWarnings("unused")
     public void playSound(Player player, String soundName, int volume, boolean music, boolean ui) {
         if(!isConnected(player)) return;
         if(!music) {
             if(!ui) {
                 for(Player all : Bukkit.getOnlinePlayers()) {
-                    if(all.getLocation().distance(player.getLocation()) < 6) {
-                        Client client = AudioApi.getInstance().getClient(all.getUniqueId());
-                        String url = getSoundURL(soundName);
-                        MediaOptions options = new MediaOptions();
-                        options.setVolume(volume);
-                        AudioApi.getInstance().getMediaApi().playSpatialSound(client, url, player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ(), volume, true, 5);
+                    Profile profile = new AXEPlayer(all).getActiveProfile();
+                    if(profile.isOtherUserSounds()) {
+                        if(all.getLocation().distance(player.getLocation()) < 6) {
+                            Client client = AudioApi.getInstance().getClient(all.getUniqueId());
+                            String url = getSoundURL(soundName);
+                            MediaOptions options = new MediaOptions();
+                            options.setVolume(volume);
+                            AudioApi.getInstance().getMediaApi().playSpatialSound(client, url, player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ(), volume, true, 5);
+                        }
                     }
                 }
             }
@@ -299,12 +408,15 @@ public class AudioUtil {
             remaining.put(player, getSoundLength(soundName));
         } else {
             for(Player all : Bukkit.getOnlinePlayers()) {
-                if(all.getLocation().distance(player.getLocation()) < 6) {
-                    Client client = AudioApi.getInstance().getClient(all.getUniqueId());
-                    String url = getSoundURL(soundName);
-                    MediaOptions options = new MediaOptions();
-                    options.setVolume(volume);
-                    AudioApi.getInstance().getMediaApi().playSpatialSound(client, url, player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ(), volume, true, 5);
+                Profile profile = new AXEPlayer(all).getActiveProfile();
+                if(profile.isOtherUserSounds()) {
+                    if(all.getLocation().distance(player.getLocation()) < 6) {
+                        Client client = AudioApi.getInstance().getClient(all.getUniqueId());
+                        String url = getSoundURL(soundName);
+                        MediaOptions options = new MediaOptions();
+                        options.setVolume(volume);
+                        AudioApi.getInstance().getMediaApi().playSpatialSound(client, url, player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ(), volume, true, 5);
+                    }
                 }
             }
         }

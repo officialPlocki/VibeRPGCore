@@ -25,10 +25,10 @@ public class AudioListener implements Listener {
     public void onMove(PlayerMoveEvent event) {
         if(!AXECore.getAudio().isPlaying(event.getPlayer())) {
             Profile profile = new AXEPlayer(event.getPlayer()).getActiveProfile();
-            if(profile.getSoundSettings().isAmbientMusic()) {
+            if(profile.isAmbientMusic()) {
                 List<String> sounds = AXECore.getAudio().getBiomeMusic(event.getPlayer().getLocation().getBlock().getBiome());
                 String sound = sounds.get(new Random().nextInt(sounds.size()) - 1);
-                if(profile.getSoundSettings().isAnnounce()) {
+                if(profile.isAnnounce()) {
                     event.getPlayer().sendMessage("Playing now: " + sound.replaceAll("wav_", "") + " - Electronic AXE");
                 }
                 AXECore.getAudio().playSound(event.getPlayer(), sound, AXECore.getAudio().getSoundVolume(sound), true);
@@ -43,7 +43,7 @@ public class AudioListener implements Listener {
                         map.put(event.getPlayer(), 0);
                         if ((int) event.getFrom().getX() != (int) event.getTo().getX() || (int) event.getFrom().getY() != (int) event.getTo().getY() || (int) event.getFrom().getZ() != (int) event.getTo().getZ()) {
                             if(event.getPlayer().isSprinting()) {
-                                if(profile.getSoundSettings().isBreath()) {
+                                if(profile.isBreath()) {
                                     VoicePacks pack = profile.getVoicePack();
                                     if(pack.name().contains("male")) {
                                         List<String> sounds = AXECore.getAudio().getSoundPack("male_c_breath_fast_single");
@@ -58,15 +58,11 @@ public class AudioListener implements Listener {
                             } else {
                                 Random random = new Random();
                                 if(random.nextInt(10) == 4) {
-                                    if(profile.getSoundSettings().isBreath()) {
+                                    if(profile.isBreath()) {
                                         VoicePacks pack = profile.getVoicePack();
                                         if(pack.name().contains("male")) {
                                             List<String> sounds = AXECore.getAudio().getSoundPack("male_b_breathing_sequence");
-                                            for(String s : sounds) {
-                                                if(s.contains("long")) {
-                                                    sounds.remove(s);
-                                                }
-                                            }
+                                            sounds.removeIf(s -> s.contains("long"));
                                             String sound = sounds.get(new Random().nextInt(sounds.size() - 1));
                                             AXECore.getAudio().playSound(event.getPlayer(), sound, 5, false);
                                         } else {
@@ -88,7 +84,7 @@ public class AudioListener implements Listener {
     public void onJump(PlayerJumpEvent event) {
         if(event.getPlayer().isSprinting()) return;
         Profile profile = new AXEPlayer(event.getPlayer()).getActiveProfile();
-        if(profile.getSoundSettings().isJump()) {
+        if(profile.isJump()) {
             VoicePacks pack = profile.getVoicePack();
             if(pack.equals(VoicePacks.male_a)) {
                 List<String> sounds = AXECore.getAudio().getSoundPack(pack.name() + "_effort_grunt");
@@ -121,7 +117,7 @@ public class AudioListener implements Listener {
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
         Profile profile = new AXEPlayer(event.getPlayer()).getActiveProfile();
-        if(profile.getSoundSettings().isDeath()) {
+        if(profile.isDeath()) {
             VoicePacks pack = profile.getVoicePack();
             if(pack.equals(VoicePacks.male_a)) {
                 List<String> sounds = AXECore.getAudio().getSoundPack(pack.name() + "_grunt_pain_death");
@@ -162,7 +158,7 @@ public class AudioListener implements Listener {
             Player player = (Player) event.getDamager();
             if(event.getDamage() >= 1) {
                 Profile profile = new AXEPlayer(player).getActiveProfile();
-                if(profile.getSoundSettings().isAttack()) {
+                if(profile.isAttack()) {
                     VoicePacks pack = profile.getVoicePack();
                     if(pack.equals(VoicePacks.male_a)) {
                         List<String> sounds = AXECore.getAudio().getSoundPack("male_b_attack_set");
@@ -204,7 +200,7 @@ public class AudioListener implements Listener {
             Player player = (Player) event.getEntity();
             if(event.getDamage() >= 1) {
                 Profile profile = new AXEPlayer(player).getActiveProfile();
-                if(profile.getSoundSettings().isDamage()) {
+                if(profile.isDamage()) {
                     VoicePacks pack = profile.getVoicePack();
                     if(pack.equals(VoicePacks.male_a)) {
                         List<String> sounds = AXECore.getAudio().getSoundPack(pack.name() + "_grunt_pain");

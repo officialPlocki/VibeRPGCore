@@ -154,12 +154,21 @@ public class AXEPlayer {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+        try (Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
+            PreparedStatement statement = connection.prepareStatement("UPDATE axePlayer SET language_set = ? WHERE uuid = ?;");
+            statement.setBoolean(1, true);
+            statement.setString(2, getUUID());
+            statement.executeUpdate();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public Profile[] getProfiles() {
         return new ProfileManager().getProfiles(getBukkitPlayer());
     }
 
+    @SuppressWarnings("unused")
     public int getProfileCount() {
         return getProfiles().length;
     }
@@ -223,6 +232,7 @@ public class AXEPlayer {
         }
     }
 
+    @SuppressWarnings("unused")
     public void connect(String server) {
         if(isOnline()) {
             try {

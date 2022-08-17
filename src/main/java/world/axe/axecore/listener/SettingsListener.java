@@ -14,11 +14,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import world.axe.axecore.player.AXEPlayer;
 import world.axe.axecore.player.Profile;
-import world.axe.axecore.player.SoundSettings;
 import world.axe.axecore.util.TranslationUtil;
 
 public class SettingsListener extends TranslationUtil implements Listener {
 
+    @SuppressWarnings("all")
     @EventHandler
     public void onClick(InventoryClickEvent event) {
         if(event.getCurrentItem() != null) {
@@ -27,30 +27,29 @@ public class SettingsListener extends TranslationUtil implements Listener {
                 event.setCancelled(true);
                 String name = event.getCurrentItem().getItemMeta().getDisplayName();
                 Profile profile = player.getActiveProfile();
-                SoundSettings settings = profile.getSoundSettings();
                 if(name.equalsIgnoreCase("§e" + key("settings.item.jump", player))) {
-                    settings.setJump(!settings.isJump());
+                    profile.setJump(!profile.isJump());
                 } else if(name.equalsIgnoreCase("§e" + key("settings.item.breath", player))) {
-                    settings.setBreath(!settings.isBreath());
+                    profile.setBreath(!profile.isBreath());
                 } else if(name.equalsIgnoreCase("§e" + key("settings.item.death", player))) {
-                    settings.setDeath(!settings.isDeath());
+                    profile.setDeath(!profile.isDeath());
                 } else if(name.equalsIgnoreCase("§e" + key("settings.item.damage", player))) {
-                    settings.setDamage(!settings.isDamage());
+                    profile.setDamage(!profile.isDamage());
                 } else if(name.equalsIgnoreCase("§e" + key("settings.item.notification", player))) {
-                    settings.setNotification(!settings.isNotifications());
+                    profile.setNotification(!profile.isNotifications());
                 } else if(name.equalsIgnoreCase("§e" + key("settings.item.ambientMusic", player))) {
-                    settings.setAmbientMusic(!settings.isAmbientMusic());
+                    profile.setAmbientMusic(!profile.isAmbientMusic());
                 } else if(name.equalsIgnoreCase("§e" + key("settings.item.otherPlayer", player))) {
-                    settings.setOtherUserSounds(!settings.isOtherUserSounds());
+                    profile.setOtherUserSounds(!profile.isOtherUserSounds());
                 } else if(name.equalsIgnoreCase("§e" + key("settings.item.ui", player))) {
-                    settings.setUi(!settings.isUi());
+                    profile.setUi(!profile.isUi());
                 } else if(name.equalsIgnoreCase("§e" + key("settings.item.announce", player))) {
-                    settings.setAnnounce(!settings.isAnnounce());
+                    profile.setAnnounce(!profile.isAnnounce());
                 } else if(name.equalsIgnoreCase("§e" + key("settings.item.attack", player))) {
-                    settings.setAttack(!settings.isAttack());
+                    profile.setAttack(!profile.isAttack());
                 }
                 if(event.getCurrentItem().getType().equals(Material.PAPER)) {
-                    profile.setSoundSettings(settings);
+                    event.getWhoClicked().closeInventory();
                     profile.save();
                     Inventory inventory = Bukkit.createInventory(null, 3 * 9, Component.text(key("settings.inventory.title", player)));
                     ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
@@ -64,7 +63,7 @@ public class SettingsListener extends TranslationUtil implements Listener {
                     ItemStack jumpSound = new ItemStack(Material.STONE_BUTTON);
                     ItemMeta jumpMeta = jumpSound.getItemMeta();
                     jumpMeta.displayName(Component.text("§e" + key("settings.item.jump", player)));
-                    if(settings.isJump()) {
+                    if(profile.isJump()) {
                         jumpMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
                         jumpMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                     }
@@ -73,7 +72,7 @@ public class SettingsListener extends TranslationUtil implements Listener {
                     ItemStack breathSound = new ItemStack(Material.STONE_BUTTON);
                     ItemMeta breathMeta = breathSound.getItemMeta();
                     breathMeta.displayName(Component.text("§e" + key("settings.item.breath", player)));
-                    if(settings.isBreath()) {
+                    if(profile.isBreath()) {
                         breathMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
                         breathMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                     }
@@ -82,7 +81,7 @@ public class SettingsListener extends TranslationUtil implements Listener {
                     ItemStack deathSound = new ItemStack(Material.STONE_BUTTON);
                     ItemMeta deathMeta = deathSound.getItemMeta();
                     deathMeta.displayName(Component.text("§e" + key("settings.item.death", player)));
-                    if(settings.isDeath()) {
+                    if(profile.isDeath()) {
                         deathMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
                         deathMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                     }
@@ -91,7 +90,7 @@ public class SettingsListener extends TranslationUtil implements Listener {
                     ItemStack damageSound = new ItemStack(Material.STONE_BUTTON);
                     ItemMeta damageMeta = damageSound.getItemMeta();
                     damageMeta.displayName(Component.text("§e" + key("settings.item.damage", player)));
-                    if(settings.isDamage()) {
+                    if(profile.isDamage()) {
                         damageMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
                         damageMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                     }
@@ -100,7 +99,7 @@ public class SettingsListener extends TranslationUtil implements Listener {
                     ItemStack notificationSound = new ItemStack(Material.STONE_BUTTON);
                     ItemMeta notificationMeta = notificationSound.getItemMeta();
                     notificationMeta.displayName(Component.text("§e" + key("settings.item.notification", player)));
-                    if(settings.isNotifications()) {
+                    if(profile.isNotifications()) {
                         notificationMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
                         notificationMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                     }
@@ -109,7 +108,7 @@ public class SettingsListener extends TranslationUtil implements Listener {
                     ItemStack ambientMusicSound = new ItemStack(Material.STONE_BUTTON);
                     ItemMeta ambientMusicMeta = ambientMusicSound.getItemMeta();
                     ambientMusicMeta.displayName(Component.text("§e" + key("settings.item.ambientMusic", player)));
-                    if(settings.isAmbientMusic()) {
+                    if(profile.isAmbientMusic()) {
                         ambientMusicMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
                         ambientMusicMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                     }
@@ -118,7 +117,7 @@ public class SettingsListener extends TranslationUtil implements Listener {
                     ItemStack otherPlayerSound = new ItemStack(Material.STONE_BUTTON);
                     ItemMeta otherPlayerMeta = otherPlayerSound.getItemMeta();
                     otherPlayerMeta.displayName(Component.text("§e" + key("settings.item.otherPlayer", player)));
-                    if(settings.isOtherUserSounds()) {
+                    if(profile.isOtherUserSounds()) {
                         otherPlayerMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
                         otherPlayerMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                     }
@@ -127,7 +126,7 @@ public class SettingsListener extends TranslationUtil implements Listener {
                     ItemStack uiSound = new ItemStack(Material.STONE_BUTTON);
                     ItemMeta uiMeta = uiSound.getItemMeta();
                     uiMeta.displayName(Component.text("§e" + key("settings.item.ui", player)));
-                    if(settings.isUi()) {
+                    if(profile.isUi()) {
                         uiMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
                         uiMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                     }
@@ -136,7 +135,7 @@ public class SettingsListener extends TranslationUtil implements Listener {
                     ItemStack announceSound = new ItemStack(Material.STONE_BUTTON);
                     ItemMeta announceMeta = announceSound.getItemMeta();
                     announceMeta.displayName(Component.text("§e" + key("settings.item.announce", player)));
-                    if(settings.isAnnounce()) {
+                    if(profile.isAnnounce()) {
                         announceMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
                         announceMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                     }
@@ -145,7 +144,7 @@ public class SettingsListener extends TranslationUtil implements Listener {
                     ItemStack attackSound = new ItemStack(Material.STONE_BUTTON);
                     ItemMeta attackMeta = attackSound.getItemMeta();
                     attackMeta.displayName(Component.text("§e" + key("settings.item.attack", player)));
-                    if(settings.isAttack()) {
+                    if(profile.isAttack()) {
                         attackMeta.addEnchant(Enchantment.KNOCKBACK, 0, true);
                         attackMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                     }

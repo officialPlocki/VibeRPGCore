@@ -1,6 +1,7 @@
 package world.axe.axecore.manager;
 
 import com.google.common.collect.Lists;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import world.axe.axecore.player.Profile;
 import world.axe.axecore.storage.mysql.MySQLTask;
@@ -67,6 +68,7 @@ public class ProfileManager {
                 profile.getUUID());
         push.addRequirement("uuid", player.getUniqueId().toString());
         push.execute();
+        player.getInventory().clear();
         Profile pro = getActiveProfile(player);
         player.getInventory().setArmorContents(pro.getArmor());
         player.getInventory().setExtraContents(pro.getExtra());
@@ -75,13 +77,32 @@ public class ProfileManager {
         player.getInventory().setStorageContents(pro.getInventoryItems());
         player.setExp((float) pro.getExp());
         player.setHealth(pro.getHealth());
-        player.teleport(pro.getLocation());
+        if(pro.getLocation().getX() != 0 && pro.getLocation().getY() != 0 && pro.getLocation().getZ() != 0) {
+            player.teleport(pro.getLocation());
+        }
     }
 
     public Profile createProfile(Player player) {
+        if(getActiveProfile(player) != null) {
+            Profile active = getActiveProfile(player);
+            active.setArmor(player.getInventory().getArmorContents());
+            active.setInventoryItems(player.getInventory().getStorageContents());
+            active.setExtra(player.getInventory().getExtraContents());
+            active.setHand(player.getInventory().getItemInMainHand());
+            active.setOffhand(player.getInventory().getItemInOffHand());
+            active.setExp(player.getExp());
+            active.setHealth(player.getHealth());
+            active.setLocation(player.getLocation());
+            active.save();
+        }
+        player.getInventory().clear();
         Profile profile = new Profile(null);
         profile.setOriginalUUID(player.getUniqueId().toString());
         profile.setLocation(player.getLocation());
+        profile.setInventoryItems(player.getInventory().getStorageContents());
+        profile.setExtra(player.getInventory().getExtraContents());
+        profile.setHand(player.getInventory().getItemInMainHand());
+        profile.setOffhand(player.getInventory().getItemInOffHand());
         profile.save();
         MySQLTable raw2 = new MySQLTask().buildTable();
         raw2.prepare("playerProfileList",
@@ -97,12 +118,15 @@ public class ProfileManager {
             MySQLInsert insert = new MySQLTask().insert();
             insert.prepare(table,
                     player.getUniqueId().toString(),
+                    profile.getUUID(),
                     new TransformUtil().toJsonArray(Lists.newArrayList(profile.getUUID())));
+            insert.execute();
         } else {
             MySQLPush push = new MySQLTask().update();
             List<String> uuids = Arrays.stream(new TransformUtil().fromJsonArray(response.getString("jsonArray"))).collect(Collectors.toList());
             uuids.add(profile.getUUID());
             push.prepare("playerProfileList", "jsonArray", new TransformUtil().toJsonArray(uuids));
+            push.execute();
         }
         return profile;
     }
@@ -119,19 +143,15 @@ public class ProfileManager {
         request.addRequirement("uuid", player.getUniqueId().toString());
         MySQLResponse response = request.execute();
         if(response.isEmpty()) return null;
+        Bukkit.getConsoleSender().sendMessage(response.getString("jsonArray"));
         return new TransformUtil().fromJsonArray(response.getString("jsonArray"));
     }
 
     public Profile[] getProfiles(Player player) {
-        MySQLRequest request = new MySQLTask().ask();
-        request.prepare("jsonArray","playerProfileList");
-        request.addRequirement("uuid", player.getUniqueId().toString());
-        MySQLResponse response = request.execute();
-        if(response.isEmpty()) return null;
-        List<String> uuids = Arrays.stream(new TransformUtil().fromJsonArray(response.getString("jsonArray"))).collect(Collectors.toList());
-        Profile[] profiles = new Profile[uuids.size()];
-        for(int i = 0; i < uuids.size(); i++) {
-            profiles[i] = getProfile(uuids.get(i));
+        String[] uuids = getProfileUUIDs(player);
+        Profile[] profiles = new Profile[uuids.length];
+        for(int i = 0; i < uuids.length; i++) {
+            profiles[i] = getProfile(uuids[i]);
         }
         return profiles;
     }

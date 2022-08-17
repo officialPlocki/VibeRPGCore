@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings("all")
 public class ItemModifier extends TranslationUtil {
 
     // @todo add item creation
@@ -121,6 +122,7 @@ public class ItemModifier extends TranslationUtil {
             meta.setLore(lore);
             stack.setItemMeta(meta);
         } else {
+            if(!yml.isSet("extra." + meta.getDisplayName() + ".rarity")) return stack;
             if(!Objects.requireNonNull(yml.getString("extra." + meta.getDisplayName() + ".lore_translate_key")).equalsIgnoreCase("none")) {
                 lore.add("§f");
                 String[] array = key(yml.getString("extra." + meta.getDisplayName() + ".lore_translate_key"), player[0]).split(";");

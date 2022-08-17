@@ -8,39 +8,28 @@ import java.sql.SQLException;
 
 public class MySQLTable {
 
-    private Connection connection;
-    private String statement;
+    private final StringBuilder statement = new StringBuilder();
     private String tableName;
     private String[] values;
-
-    public MySQLTable() {
-        try {
-            connection = AXECore.getDriver().getDataSource().getConnection();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-    }
 
     /**
      * It creates a table if it doesn't exist, and if it does, it doesn't do anything
      *
      * @param tableName The name of the table you want to create.
-     * @return The MySQLTable class.
      */
-    public MySQLTable prepare(String tableName, String... values) {
-        statement = "CREATE TABLE IF NOT EXISTS " + tableName + "(";
+    public void prepare(String tableName, String... values) {
+        statement.append("CREATE TABLE IF NOT EXISTS ").append(tableName).append("(");
         final int[] i = {0};
         for(String value : values) {
             if(!(i[0] == (values.length - 1))) {
-                statement = statement + value + " TEXT, ";
+                statement.append(value).append(" TEXT, ");
             } else {
-                statement = statement + value + " TEXT);";
+                statement.append(value).append(" TEXT);");
             }
             i[0] = i[0] + 1;
         }
         this.values = values;
         this.tableName = tableName;
-        return this;
     }
 
     /**
@@ -49,10 +38,10 @@ public class MySQLTable {
      * @return An anonymous class that implements the fin interface.
      */
     public MySQLTable.fin build() {
-        try {
-            connection.prepareStatement(statement).executeUpdate();
+        try(Connection connection = AXECore.getDriver().getDataSource().getConnection()) {
+            connection.prepareStatement(statement.toString()).executeUpdate();
         } catch (SQLException e) {
-            Bukkit.getConsoleSender().sendMessage(statement);
+            Bukkit.getConsoleSender().sendMessage(statement.toString());
             throw new RuntimeException(e);
         }
         return new fin() {
