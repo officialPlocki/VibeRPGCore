@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>world.axe</groupId>
-    <artifactId>AXECore</artifactId>
+    <groupId>eu.viberpg</groupId>
+    <artifactId>core</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>AXECore</name>
+    <name>Core</name>
 
     <properties>
         <java.version>1.8</java.version>
@@ -18,8 +18,9 @@
 
     <distributionManagement>
         <repository>
-            <id>eaxe-maven</id>
-            <url>https://maven.pkg.jetbrains.space/electronic-axe/p/general/maven</url>
+            <id>github</id>
+            <name>core</name>
+            <url>https://maven.pkg.github.com/officialPlocki/Core</url>
         </repository>
     </distributionManagement>
 
@@ -90,10 +91,6 @@
             <url>https://mvn.lumine.io/repository/maven-public/</url>
         </repository>
         <repository>
-            <id>eaxe-maven</id>
-            <url>https://maven.pkg.jetbrains.space/electronic-axe/p/general/maven</url>
-        </repository>
-        <repository>
             <id>github</id>
             <url>https://maven.pkg.github.com/Mindgamesnl/OpenAudioMc</url>
             <snapshots>
@@ -135,7 +132,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20220320</version>
+            <version>20220924</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -171,13 +168,13 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.12.6.1</version>
+            <version>2.12.7.1</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.jsonschema2pojo</groupId>
             <artifactId>jsonschema2pojo-core</artifactId>
-            <version>1.1.1</version>
+            <version>1.1.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

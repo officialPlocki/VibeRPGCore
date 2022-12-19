@@ -1,9 +1,9 @@
 name: AXECore
 version: '${project.version}'
-main: world.axe.axecore.AXECore
+main: eu.viberpg.core.Core
 api-version: 1.18
 load: POSTWORLD
-author: Electronic AXE Development
+author: Vultron Studios Development
 depend:
   - ProtocolLib
   - MythicMobs
