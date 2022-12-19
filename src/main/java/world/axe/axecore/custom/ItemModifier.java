@@ -9,10 +9,7 @@ import world.axe.axecore.player.AXEPlayer;
 import world.axe.axecore.storage.FileProvider;
 import world.axe.axecore.util.TranslationUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @SuppressWarnings("all")
 public class ItemModifier extends TranslationUtil {
@@ -20,36 +17,34 @@ public class ItemModifier extends TranslationUtil {
     // @todo add item creation
 
     private final YamlConfiguration yml;
+    private final FileProvider provider;
 
     public ItemModifier() {
-        FileProvider provider = new FileProvider("items.yml");
+        provider = new FileProvider("items.yml");
         this.yml = provider.getConfiguration();
         List<String> tags = new ArrayList<>();
         for(DisplayHelper.special special : DisplayHelper.special.values()) {
-            tags.add(special.name());
+            tags.add("#" + special.name());
         }
         List<String> explicit = new ArrayList<>();
         for(DisplayHelper.explicit ex : DisplayHelper.explicit.values()) {
-            explicit.add(ex.name());
-        }
-        List<String> quality = new ArrayList<>();
-        for(DisplayHelper.quality quality1 : DisplayHelper.quality.values()) {
-            quality.add(quality1.name());
+            explicit.add("#" + ex.name());
         }
         if(!yml.isSet("conf.STONE.tags")) {
             yml.set("INFORMATION", "set strings to \"none\" when there is nothing to show - at arrays please leave it empty like this: []");
             for(Material material : Material.values()) {
                 yml.set("conf." + material.name() + ".tags", tags);
                 yml.set("conf." + material.name() + ".explicit", explicit);
-                yml.set("conf." + material.name() + ".quality", quality);
-                yml.set("conf." + material.name() + ".rarity", "RARITY-ONE_STAR");
+                yml.set("conf." + material.name() + ".rarity", material.getItemRarity().name() + "-THREE_STAR");
                 provider.save();
             }
+            yml.set("extras.NAME", "ID");
             yml.set("extra.ITEM_ID.tags", tags);
             yml.set("extra.ITEM_ID.explicit", explicit);
+            yml.set("extra.ITEM_ID.rarity", "COMMON-ONE_STAR");
+            yml.set("extra.ITEM_ID.lore_translation", "German");
             yml.set("extra.ITEM_ID.lore_translate_key", "KEY");
-            yml.set("extra.ITEM_ID.quality", quality);
-            yml.set("extra.ITEM_ID.rarity", "RARITY-ONE_STAR");
+            yml.set("extra.ITEM_ID.name_translation", "German");
             yml.set("extra.ITEM_ID.name_translate_key", "KEY");
             provider.save();
         }
@@ -66,38 +61,30 @@ public class ItemModifier extends TranslationUtil {
                 lore.add("§f");
                 String[] array  = Objects.requireNonNull(yml.getString("conf." + stack.getType().name() + ".rarity")).split("-");
                 String rarity = array[0].toLowerCase();
-                StringBuilder qual = new StringBuilder("§f");
-                if(!yml.getStringList("conf." + stack.getType().name() + ".quality").isEmpty()) {
-                    List<String> tags = yml.getStringList("conf." + stack.getType().name() + ".quality");
-                    for(String tag : tags) {
-                        DisplayHelper.quality t = DisplayHelper.quality.valueOf(tag);
-                        qual.append(t.val());
-                    }
-                }
                 switch (rarity) {
                     case "common":
-                        lore.add(qual + DisplayHelper.common.valueOf(array[1]).val());
+                        lore.add(DisplayHelper.common.valueOf(array[1]).val());
                         break;
                     case "epic":
-                        lore.add(qual + DisplayHelper.epic.valueOf(array[1]).val());
+                        lore.add(DisplayHelper.epic.valueOf(array[1]).val());
                         break;
                     case "heroic":
-                        lore.add(qual + DisplayHelper.heroic.valueOf(array[1]).val());
+                        lore.add(DisplayHelper.heroic.valueOf(array[1]).val());
                         break;
                     case "legendary":
-                        lore.add(qual + DisplayHelper.legendary.valueOf(array[1]).val());
+                        lore.add(DisplayHelper.legendary.valueOf(array[1]).val());
                         break;
                     case "mythical":
-                        lore.add(qual + DisplayHelper.mythical.valueOf(array[1]).val());
+                        lore.add(DisplayHelper.mythical.valueOf(array[1]).val());
                         break;
                     case "rare":
-                        lore.add(qual + DisplayHelper.rare.valueOf(array[1]).val());
+                        lore.add(DisplayHelper.rare.valueOf(array[1]).val());
                         break;
                     case "ultrarare":
-                        lore.add(qual + DisplayHelper.ultrarare.valueOf(array[1]).val());
+                        lore.add(DisplayHelper.ultrarare.valueOf(array[1]).val());
                         break;
                     case "uncommon":
-                        lore.add(qual + DisplayHelper.uncommon.valueOf(array[1]).val());
+                        lore.add(DisplayHelper.uncommon.valueOf(array[1]).val());
                         break;
                 }
             }
@@ -105,6 +92,7 @@ public class ItemModifier extends TranslationUtil {
                 StringBuilder str = new StringBuilder("§f");
                 List<String> tags = yml.getStringList("conf." + stack.getType().name() + ".explicit");
                 for(String tag : tags) {
+                    if(tag.startsWith("#")) continue;
                     DisplayHelper.explicit t = DisplayHelper.explicit.valueOf(tag);
                     str.append(t.val());
                 }
@@ -114,6 +102,7 @@ public class ItemModifier extends TranslationUtil {
                 StringBuilder str = new StringBuilder("§f");
                 List<String> tags = yml.getStringList("conf." + stack.getType().name() + ".tags");
                 for(String tag : tags) {
+                    if(tag.startsWith("#")) continue;
                     DisplayHelper.special t = DisplayHelper.special.valueOf(tag);
                     str.append(t.val());
                 }
@@ -122,75 +111,101 @@ public class ItemModifier extends TranslationUtil {
             meta.setLore(lore);
             stack.setItemMeta(meta);
         } else {
-            if(!yml.isSet("extra." + meta.getDisplayName() + ".rarity")) return stack;
-            if(!Objects.requireNonNull(yml.getString("extra." + meta.getDisplayName() + ".lore_translate_key")).equalsIgnoreCase("none")) {
+
+
+
+            //@todo item activation & translation command
+
+
+
+            String iid = yml.isSet("extras." + meta.getDisplayName()) ? UUID.randomUUID().toString() : yml.getString("extras." + meta.getDisplayName());
+            if(yml.isSet("extra." + iid + ".active")) {
+                if(!yml.getBoolean("extra." + iid + ".active")) {
+                    return stack;
+                }
+            }
+            if(!yml.isSet("extra." + iid + ".rarity")) {
+                List<String> tags = new ArrayList<>();
+                for(DisplayHelper.special special : DisplayHelper.special.values()) {
+                    tags.add("#" + special.name());
+                }
+                List<String> explicit = new ArrayList<>();
+                for(DisplayHelper.explicit ex : DisplayHelper.explicit.values()) {
+                    explicit.add("#" + ex.name());
+                }
+                yml.set("extras." + meta.getDisplayName(), iid);
+                yml.set("extra." + iid + ".tags", tags);
+                yml.set("extra." + iid + ".explicit", explicit);
+                yml.set("extra." + iid + ".rarity", "COMMON-ONE_STAR");
+                yml.set("extra." + iid + ".lore_translation", "");
+                yml.set("extra." + iid + ".lore_translate_key", "");
+                yml.set("extra." + iid + ".name_translation", "");
+                yml.set("extra." + iid + ".name_translate_key", "");
+                yml.set("extra." + iid + ".active", false);
+                provider.save();
+            }
+            if(!Objects.requireNonNull(yml.getString("extra." + iid + ".lore_translate_key")).equalsIgnoreCase("none")) {
                 lore.add("§f");
-                String[] array = key(yml.getString("extra." + meta.getDisplayName() + ".lore_translate_key"), player[0]).split(";");
+                String[] array = key(yml.getString("extra." + iid + ".lore_translate_key"), player[0]).split(";");
                 lore.addAll(Arrays.asList(array));
             }
-            if(Objects.requireNonNull(yml.getString("extra." + meta.getDisplayName() + ".name_translate_key")).equalsIgnoreCase("none")) {
+            if(Objects.requireNonNull(yml.getString("extra." + iid + ".name_translate_key")).equalsIgnoreCase("none")) {
                 meta.setLore(lore);
                 stack.setItemMeta(meta);
                 return stack;
             }
-            if(!Objects.requireNonNull(yml.getString("extra." + meta.getDisplayName() + ".name_translate_key")).equalsIgnoreCase("none")) {
-                meta.setDisplayName(yml.getString("extra." + meta.getDisplayName() + ".name_translate_key"));
+            if(!Objects.requireNonNull(yml.getString("extra." + iid + ".name_translate_key")).equalsIgnoreCase("none")) {
+                meta.setDisplayName(yml.getString("extra." + iid + ".name_translate_key"));
             }
-            if(!Objects.requireNonNull(yml.getString("extra." + meta.getDisplayName() + ".rarity")).equalsIgnoreCase("none")) {
+            if(!Objects.requireNonNull(yml.getString("extra." + iid + ".rarity")).equalsIgnoreCase("none")) {
                 lore.add("§f");
                 lore.add("§8§l»------------------------«");
                 lore.add("§f" + DisplayHelper.explicit.TAGS.val());
                 lore.add("§f");
-                String[] array  = Objects.requireNonNull(yml.getString("extra." + meta.getDisplayName() + ".rarity")).split("-");
+                String[] array  = Objects.requireNonNull(yml.getString("extra." + iid + ".rarity")).split("-");
                 String rarity = array[0].toLowerCase();
-                StringBuilder qual = new StringBuilder("§f");
-                if(!yml.getStringList("extra." + meta.getDisplayName() + ".quality").isEmpty()) {
-                    List<String> tags = yml.getStringList("extra." + meta.getDisplayName() + ".quality");
-                    for(String tag : tags) {
-                        DisplayHelper.quality t = DisplayHelper.quality.valueOf(tag);
-                        qual.append(t.val());
-                    }
-                }
                 switch (rarity) {
                     case "common":
-                        lore.add(qual + DisplayHelper.common.valueOf(array[1]).val());
+                        lore.add(DisplayHelper.common.valueOf(array[1]).val());
                         break;
                     case "epic":
-                        lore.add(qual + DisplayHelper.epic.valueOf(array[1]).val());
+                        lore.add(DisplayHelper.epic.valueOf(array[1]).val());
                         break;
                     case "heroic":
-                        lore.add(qual + DisplayHelper.heroic.valueOf(array[1]).val());
+                        lore.add(DisplayHelper.heroic.valueOf(array[1]).val());
                         break;
                     case "legendary":
-                        lore.add(qual + DisplayHelper.legendary.valueOf(array[1]).val());
+                        lore.add(DisplayHelper.legendary.valueOf(array[1]).val());
                         break;
                     case "mythical":
-                        lore.add(qual + DisplayHelper.mythical.valueOf(array[1]).val());
+                        lore.add(DisplayHelper.mythical.valueOf(array[1]).val());
                         break;
                     case "rare":
-                        lore.add(qual + DisplayHelper.rare.valueOf(array[1]).val());
+                        lore.add(DisplayHelper.rare.valueOf(array[1]).val());
                         break;
                     case "ultrarare":
-                        lore.add(qual + DisplayHelper.ultrarare.valueOf(array[1]).val());
+                        lore.add(DisplayHelper.ultrarare.valueOf(array[1]).val());
                         break;
                     case "uncommon":
-                        lore.add(qual + DisplayHelper.uncommon.valueOf(array[1]).val());
+                        lore.add(DisplayHelper.uncommon.valueOf(array[1]).val());
                         break;
                 }
             }
-            if(!yml.getStringList("extra." + meta.getDisplayName() + ".explicit").isEmpty()) {
+            if(!yml.getStringList("extra." + iid + ".explicit").isEmpty()) {
                 StringBuilder str = new StringBuilder("§f");
-                List<String> tags = yml.getStringList("extra." + meta.getDisplayName() + ".explicit");
+                List<String> tags = yml.getStringList("extra." + iid + ".explicit");
                 for(String tag : tags) {
+                    if(tag.startsWith("#")) continue;
                     DisplayHelper.explicit t = DisplayHelper.explicit.valueOf(tag);
                     str.append(t.val());
                 }
                 lore.add(str.toString());
             }
-            if(!yml.getStringList("extra." + meta.getDisplayName() + ".tags").isEmpty()) {
+            if(!yml.getStringList("extra." + iid + ".tags").isEmpty()) {
                 StringBuilder str = new StringBuilder("§f");
-                List<String> tags = yml.getStringList("extra." + meta.getDisplayName() + ".tags");
+                List<String> tags = yml.getStringList("extra." + iid + ".tags");
                 for(String tag : tags) {
+                    if(tag.startsWith("#")) continue;
                     DisplayHelper.special t = DisplayHelper.special.valueOf(tag);
                     str.append(t.val());
                 }

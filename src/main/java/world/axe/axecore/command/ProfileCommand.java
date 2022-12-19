@@ -31,36 +31,31 @@ public class ProfileCommand extends TranslationUtil implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        Inventory inventory = Bukkit.createInventory(null, 3*9, Component.text(key("profile.inventory.name", new AXEPlayer((Player) sender))));
+        Inventory inventory = Bukkit.createInventory(null, 3 * 9, Component.text(key("profile.inventory.name", new AXEPlayer((Player) sender))));
         ItemStack filler = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta fillerMeta = filler.getItemMeta();
         fillerMeta.displayName(Component.text("§f"));
         filler.setItemMeta(fillerMeta);
-        for(int i = 0; i < inventory.getSize(); i++) {
+        for (int i = 0; i < inventory.getSize(); i++) {
             inventory.setItem(i, filler);
         }
 
         AXEPlayer player = new AXEPlayer((Player) sender);
         List<String> profiles = Arrays.stream(new ProfileManager().getProfileUUIDs(player.getBukkitPlayer())).collect(Collectors.toList());
         int i = 0;
-        List<String> used = new ArrayList<>();
-        for(String uuid : profiles) {
-            if(used.contains(uuid)) {
-                continue;
-            }
-            used.add(uuid);
+        for (String uuid : profiles) {
             ItemStack item = new ItemStack(Material.PAPER);
             ItemMeta meta = item.getItemMeta();
             Profile profile = new ProfileManager().getProfile(uuid);
             sender.sendMessage(uuid);
-            if(Objects.equals(uuid, player.getActiveProfile().getUUID())) {
+            if (Objects.equals(uuid, player.getActiveProfile().getUUID())) {
                 meta.addEnchant(Enchantment.KNOCKBACK, 0, true);
                 meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             }
             meta.displayName(Component.text("§e" + uuid));
             meta.lore(Lists.newArrayList(Component.text(""),
                     Component.text("§aTeam: " + profile.getSkillTeam().name()),
-                    Component.text( "§cHP: " + profile.getHealth()),
+                    Component.text("§cHP: " + profile.getHealth()),
                     Component.text("§eCD: " + new Date(profile.getCreated())),
                     Component.text("")));
             item.setItemMeta(meta);

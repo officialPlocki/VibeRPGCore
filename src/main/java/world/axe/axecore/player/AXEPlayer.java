@@ -173,10 +173,6 @@ public class AXEPlayer {
         return getProfiles().length;
     }
 
-    public Profile createProfile() {
-        return new ProfileManager().createProfile(getBukkitPlayer());
-    }
-
     public void setProfile(Profile profile) {
         new ProfileManager().changeProfile(getBukkitPlayer(), profile);
     }

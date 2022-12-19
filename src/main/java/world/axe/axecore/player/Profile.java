@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 import world.axe.axecore.custom.ProfileLocation;
 import world.axe.axecore.custom.SkillTeam;
+import world.axe.axecore.quests.Quest;
 import world.axe.axecore.storage.mysql.MySQLTask;
 import world.axe.axecore.storage.mysql.function.MySQLInsert;
 import world.axe.axecore.storage.mysql.function.MySQLPush;
@@ -14,6 +15,7 @@ import world.axe.axecore.storage.mysql.function.MySQLTable;
 import world.axe.axecore.util.TransformUtil;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -72,6 +74,12 @@ public class Profile {
     private boolean ui = true;
     @JsonProperty("announceMusic")
     private boolean announce = true;
+    @JsonProperty("activeQuest")
+    private Quest activeQuest;
+    @JsonProperty("availableQuests")
+    private List<Long> availableQuests;
+    @JsonProperty("finishedQuests")
+    private List<Long> finishedQuests;
 
     @JsonCreator
     public Profile(@Nullable Profile profile) {
@@ -115,7 +123,34 @@ public class Profile {
             otherUserSounds = profile.isOtherUserSounds();
             ui = profile.isUi();
             announce = profile.isAnnounce();
+            availableQuests = profile.getAvailableQuests();
+            finishedQuests = profile.getFinishedQuests();
+            activeQuest = profile.getActiveQuest();
         }
+    }
+
+    public List<Long> getAvailableQuests() {
+        return availableQuests;
+    }
+
+    public List<Long> getFinishedQuests() {
+        return finishedQuests;
+    }
+
+    public Quest getActiveQuest() {
+        return activeQuest;
+    }
+
+    public void setActiveQuest(Quest activeQuest) {
+        this.activeQuest = activeQuest;
+    }
+
+    public void setAvailableQuests(List<Long> availableQuests) {
+        this.availableQuests = availableQuests;
+    }
+
+    public void setFinishedQuests(List<Long> finishedQuests) {
+        this.finishedQuests = finishedQuests;
     }
 
     public boolean isAnnounce() {

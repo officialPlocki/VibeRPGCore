@@ -82,7 +82,7 @@ public class ProfileListener extends TranslationUtil implements Listener {
                         if(player.getProfiles().length >= 5) {
                             event.getWhoClicked().sendMessage(key("profile.message.too_many_profiles", player));
                         } else {
-                            player.createProfile();
+                            new ProfileManager().createProfile((Player) event.getWhoClicked());
                             event.getWhoClicked().sendMessage(key("profile.message.profile_created", player));
                             event.getWhoClicked().closeInventory();
                             Inventory inventory = Bukkit.createInventory(null, 3*9, key("profile.inventory.name", player));

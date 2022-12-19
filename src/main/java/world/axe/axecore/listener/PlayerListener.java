@@ -44,7 +44,7 @@ public class PlayerListener implements Listener {
             new LabyModDisplay().displayRank(event.getPlayer());
             new LabyModDisplay().sendTablistImage(event.getPlayer());
             if(new AXEPlayer(event.getPlayer()).getActiveProfile() == null) {
-                Profile profile = new AXEPlayer(event.getPlayer()).createProfile();
+                Profile profile = new ProfileManager().createProfile(event.getPlayer());
                 new ProfileManager().forceProfile(event.getPlayer(), profile);
             }
         } catch (Exception ex) {
